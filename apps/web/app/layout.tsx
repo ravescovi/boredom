@@ -23,6 +23,11 @@ export const metadata: Metadata = {
   description: "A brand-new party game. Just for tonight."
 };
 
+// Vercel function timeout. Haiku 4.5 finishes in ~9–13s; we set the cap
+// well above that so transient slow calls don't get clipped. Hobby tier
+// allows up to 60s; raise to 300s on Pro if you switch back to Sonnet.
+export const maxDuration = 60;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${bricolage.variable} ${inter.variable}`}>
