@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
+import { SiteFooter } from "../components/SiteFooter";
+import { SiteNav } from "../components/SiteNav";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -24,7 +26,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${bricolage.variable} ${inter.variable}`}>
-      <body className="bg-cream font-sans text-ink antialiased">{children}</body>
+      <body className="bg-cream font-sans text-ink antialiased">
+        <SiteNav />
+        {children}
+        <SiteFooter />
+      </body>
     </html>
   );
 }
