@@ -10,6 +10,7 @@ import { GameTypeSelector } from "../../components/GameTypeSelector";
 import { GeneratedGameView } from "../../components/GeneratedGameView";
 import { GenerationErrorView } from "../../components/GenerationErrorView";
 import { PlayerCountInput } from "../../components/PlayerCountInput";
+import { ShareGameButton } from "../../components/ShareGameButton";
 import { generateGameAction } from "./actions";
 import type { ActionState } from "./runGenerateAction";
 
@@ -101,6 +102,7 @@ function ResultView({ game }: { game: GameSpec }) {
             Random game 🎲
           </button>
         </form>
+        <ShareGameButton game={game} />
       </div>
     </div>
   );
