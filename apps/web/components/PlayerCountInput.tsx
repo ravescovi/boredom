@@ -1,29 +1,27 @@
+// apps/web/components/PlayerCountInput.tsx
 export function PlayerCountInput() {
   return (
-    <fieldset className="grid gap-3">
-      <legend className="text-lg font-semibold text-[#251646]">Number of players</legend>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="grid gap-2">
-          <span className="text-sm font-medium text-[#4d3f66]">Minimum</span>
-          <input
-            name="minPlayers"
-            type="number"
-            min={1}
-            defaultValue={2}
-            className="rounded-md border border-[#ffd166] bg-white px-3 py-2"
-          />
-        </label>
-        <label className="grid gap-2">
-          <span className="text-sm font-medium text-[#4d3f66]">Maximum</span>
-          <input
-            name="maxPlayers"
-            type="number"
-            min={1}
-            defaultValue={6}
-            className="rounded-md border border-[#ffd166] bg-white px-3 py-2"
-          />
-        </label>
+    <div className="grid gap-2">
+      <div className="text-[12px] font-bold uppercase tracking-[.03em]">How many of you</div>
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2.5">
+        <input
+          aria-label="Minimum players"
+          name="minPlayers"
+          type="number"
+          min={1}
+          defaultValue={2}
+          className="w-full rounded-[10px] border-[3px] border-ink bg-white p-3 text-center font-display text-2xl font-extrabold shadow-brut-sm"
+        />
+        <span className="text-xl font-extrabold text-ink/30">→</span>
+        <input
+          aria-label="Maximum players"
+          name="maxPlayers"
+          type="number"
+          min={1}
+          defaultValue={6}
+          className="w-full rounded-[10px] border-[3px] border-ink bg-white p-3 text-center font-display text-2xl font-extrabold shadow-brut-sm"
+        />
       </div>
-    </fieldset>
+    </div>
   );
 }
