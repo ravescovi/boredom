@@ -3,18 +3,66 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
-  background: #f5f5f2;
-  color: #171717;
+  --color-ink: #1A1A1A;
+  --color-cream: #FFF8E1;
+  --color-paper: #FFFCF0;
+  --color-butter: #FFE45C;
+  --color-hot: #FF5C8A;
+  --color-mint: #5BE0B0;
+  --color-sky: #8AD7FF;
+  --color-lilac: #C9B6FF;
 }
 
-body {
-  min-height: 100vh;
-  background: #f5f5f2;
+@keyframes brut-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .5; transform: scale(1.4); }
 }
 
-input,
-select,
-textarea {
-  font: inherit;
+@keyframes brut-wiggle {
+  0%, 100% { transform: rotate(8deg); }
+  25% { transform: rotate(-6deg); }
+  75% { transform: rotate(16deg); }
+}
+
+@keyframes brut-drift-a {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  50% { transform: translate(-20px, 20px) rotate(8deg); }
+}
+
+@keyframes brut-drift-b {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  50% { transform: translate(30px, -15px) rotate(-6deg); }
+}
+
+@keyframes brut-swipe-pop {
+  0%, 100% { box-shadow: 4px 4px 0 var(--color-ink); transform: rotate(-1.8deg); }
+  50% { box-shadow: 6px 6px 0 var(--color-ink); transform: rotate(-2.4deg); }
+}
+
+@keyframes brut-badge-bob {
+  0%, 100% { transform: rotate(4deg) translateY(0); }
+  50% { transform: rotate(7deg) translateY(-3px); }
+}
+
+@keyframes brut-word-pop {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+@keyframes brut-modal-in {
+  0% { opacity: 0; transform: scale(.85) rotate(-2deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+@keyframes brut-backdrop-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
