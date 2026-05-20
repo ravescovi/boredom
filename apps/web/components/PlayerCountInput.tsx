@@ -1,5 +1,9 @@
-// apps/web/components/PlayerCountInput.tsx
-export function PlayerCountInput() {
+type Props = {
+  defaultMin?: string;
+  defaultMax?: string;
+};
+
+export function PlayerCountInput({ defaultMin = "2", defaultMax = "6" }: Props = {}) {
   return (
     <div className="grid gap-2">
       <div className="text-[12px] font-bold uppercase tracking-[.03em]">How many of you</div>
@@ -9,7 +13,7 @@ export function PlayerCountInput() {
           name="minPlayers"
           type="number"
           min={1}
-          defaultValue={2}
+          defaultValue={defaultMin}
           className="w-full rounded-[10px] border-[3px] border-ink bg-white p-3 text-center font-display text-2xl font-extrabold shadow-brut-sm"
         />
         <span className="text-xl font-extrabold text-ink/30">→</span>
@@ -18,7 +22,7 @@ export function PlayerCountInput() {
           name="maxPlayers"
           type="number"
           min={1}
-          defaultValue={6}
+          defaultValue={defaultMax}
           className="w-full rounded-[10px] border-[3px] border-ink bg-white p-3 text-center font-display text-2xl font-extrabold shadow-brut-sm"
         />
       </div>

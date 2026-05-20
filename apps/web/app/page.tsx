@@ -185,6 +185,7 @@ export default function HomePage() {
 
               <input name="props" type="hidden" value="paper" />
               <input name="props" type="hidden" value="pens" />
+              <input name="auto" type="hidden" value="1" />
 
               <button
                 type="submit"

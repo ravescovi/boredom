@@ -1,4 +1,3 @@
-// apps/web/components/CircumstancesInput.tsx
 const circumstances = [
   {
     emoji: "🛋️",
@@ -22,7 +21,13 @@ const circumstances = [
   }
 ];
 
-export function CircumstancesInput() {
+type Props = {
+  defaultValue?: string;
+};
+
+export function CircumstancesInput({ defaultValue }: Props = {}) {
+  const matchedIndex = circumstances.findIndex((c) => c.value === defaultValue);
+  const selectedIndex = matchedIndex >= 0 ? matchedIndex : 0;
   return (
     <fieldset className="grid gap-2">
       <legend className="text-[12px] font-bold uppercase tracking-[.03em]">The vibe</legend>
@@ -36,7 +41,7 @@ export function CircumstancesInput() {
               name="circumstances"
               type="radio"
               value={item.value}
-              defaultChecked={index === 0}
+              defaultChecked={index === selectedIndex}
               className="sr-only"
             />
             <span className="text-[22px] leading-none" aria-hidden="true">

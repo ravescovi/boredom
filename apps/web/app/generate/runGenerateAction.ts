@@ -53,6 +53,39 @@ const DRINKING_TERMS = ["alcohol", "beer", "drink", "drinking", "drunk", "shot"]
 const GAMBLING_TERMS = ["bet", "blackjack", "casino", "gamble", "lottery", "poker", "wager"];
 const PHYSICAL_TERMS = ["dare", "pain", "restraint", "stunt", "tackle", "weapon"];
 
+const RANDOM_CIRCUMSTANCES = [
+  "Friends relaxing indoors with paper, pens, and a 20-minute window.",
+  "A cheerful group gathered around a table with snacks, phones away, paper, and pens.",
+  "People waiting together with limited space, low energy, and a need for quick laughs.",
+  "A relaxed conversation setting with comfortable seats and simple materials.",
+  "A long road trip with everyone seated and a desire for a portable game.",
+  "An office break room with whiteboard, sticky notes, and a 15-minute lull."
+];
+const RANDOM_GAME_TYPES = ["creative", "conversation", "puzzle", "collaborative", "party-light"];
+const RANDOM_PROP_POOLS: string[][] = [
+  ["paper", "pens"],
+  ["paper", "pens", "timer"],
+  ["cards"],
+  ["paper", "sticky notes"],
+  ["whiteboard", "pens"],
+  ["dice", "paper", "pens"]
+];
+
+function pick<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function randomInput(): ParsedInput {
+  const min = 2 + Math.floor(Math.random() * 3);
+  const max = min + 2 + Math.floor(Math.random() * 4);
+  return {
+    playerCount: { min, max },
+    circumstances: pick(RANDOM_CIRCUMSTANCES),
+    gameType: pick(RANDOM_GAME_TYPES),
+    availableProps: pick(RANDOM_PROP_POOLS)
+  };
+}
+
 function parseFormData(form: FormData): ParseResult {
   const fields: Record<string, string> = {};
 
@@ -108,7 +141,8 @@ export async function runGenerateAction(
   const log = deps.log ?? ((entry) => console.log(JSON.stringify(entry)));
   const startedAt = now();
 
-  const parsed = parseFormData(form);
+  const isRandom = form.get("random") === "1";
+  const parsed: ParseResult = isRandom ? { ok: true, value: randomInput() } : parseFormData(form);
   if (!parsed.ok) {
     log({
       status: "input_error",

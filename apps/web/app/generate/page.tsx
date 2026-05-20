@@ -1,6 +1,7 @@
 "use client";
 
 import type { GameSpec } from "@bordon-ai/shared";
+import { useEffect, useRef, useState } from "react";
 import { useActionState } from "react";
 import { AvailablePropsSelector } from "../../components/AvailablePropsSelector";
 import { CircumstancesInput } from "../../components/CircumstancesInput";
@@ -14,8 +15,28 @@ import type { ActionState } from "./runGenerateAction";
 
 const initialState: ActionState = { status: "idle" };
 
+const HOMEPAGE_REQUIRED_PARAMS = ["minPlayers", "maxPlayers", "circumstances", "gameType"];
+
 export default function GeneratePage() {
   const [state, formAction, isPending] = useActionState(generateGameAction, initialState);
+  const [prefill, setPrefill] = useState<URLSearchParams | null>(null);
+  const autoFiredRef = useRef(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setPrefill(params);
+    if (autoFiredRef.current) return;
+    if (state.status !== "idle") return;
+    const hasAllFields = HOMEPAGE_REQUIRED_PARAMS.every((k) => params.get(k));
+    if (params.get("auto") === "1" && hasAllFields) {
+      autoFiredRef.current = true;
+      const fd = new FormData();
+      for (const [k, v] of params.entries()) {
+        if (k !== "auto") fd.append(k, v);
+      }
+      formAction(fd);
+    }
+  }, [state.status, formAction]);
 
   return (
     <main className="mx-auto max-w-[860px] px-6 py-10">
@@ -42,16 +63,16 @@ export default function GeneratePage() {
           <GenerationErrorView
             variant="rejected"
             categories={state.categories}
-            onRetry={() => window.location.reload()}
+            onRetry={() => window.location.assign("/generate")}
           />
         ) : state.status === "error" ? (
           <GenerationErrorView
             variant="error"
             message={state.message}
-            onRetry={() => window.location.reload()}
+            onRetry={() => window.location.assign("/generate")}
           />
         ) : (
-          <FormView state={state} formAction={formAction} />
+          <FormView state={state} formAction={formAction} prefill={prefill} />
         )}
       </div>
     </main>
@@ -62,25 +83,47 @@ function ResultView({ game }: { game: GameSpec }) {
   return (
     <div className="grid gap-6">
       <GeneratedGameView game={game} />
-      <button
-        type="button"
-        onClick={() => window.location.assign("/generate")}
-        className="w-fit rounded-xl border-[3px] border-ink bg-hot px-5 py-3.5 font-display text-[18px] font-extrabold -tracking-[.01em] shadow-brut-lg transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_#1A1A1A]"
-      >
-        Make another 🎲
-      </button>
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={() => window.location.assign("/generate")}
+          className="rounded-xl border-[3px] border-ink bg-paper px-5 py-3.5 font-display text-[18px] font-extrabold -tracking-[.01em] shadow-brut-lg transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_#1A1A1A]"
+        >
+          Pick again
+        </button>
+        <form action="/generate" method="get">
+          <input type="hidden" name="auto" value="1" />
+          <input type="hidden" name="random" value="1" />
+          <button
+            type="submit"
+            className="rounded-xl border-[3px] border-ink bg-hot px-5 py-3.5 font-display text-[18px] font-extrabold -tracking-[.01em] shadow-brut-lg transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_#1A1A1A]"
+          >
+            Random game 🎲
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
 
 function FormView({
   state,
-  formAction
+  formAction,
+  prefill
 }: {
   state: ActionState;
   formAction: (formData: FormData) => void;
+  prefill: URLSearchParams | null;
 }) {
   const fieldErrors = state.status === "input_error" ? state.fields : {};
+  const defaults = {
+    minPlayers: prefill?.get("minPlayers") ?? "2",
+    maxPlayers: prefill?.get("maxPlayers") ?? "6",
+    circumstances: prefill?.get("circumstances") ?? "",
+    gameType: prefill?.get("gameType") ?? "creative",
+    props: prefill?.getAll("props") ?? []
+  };
+
   return (
     <>
       <h1 className="font-display text-[clamp(40px,6vw,72px)] font-extrabold leading-[.92] -tracking-[.03em]">
@@ -100,11 +143,25 @@ function FormView({
         structured game.
       </p>
 
+      <div className="mt-6">
+        <form action="/generate" method="get">
+          <input type="hidden" name="auto" value="1" />
+          <input type="hidden" name="random" value="1" />
+          <button
+            type="submit"
+            className="rounded-xl border-[3px] border-ink bg-butter px-5 py-3 font-display text-[16px] font-extrabold -tracking-[.01em] shadow-brut-lg transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_#1A1A1A]"
+          >
+            Just surprise me 🎲
+          </button>
+        </form>
+      </div>
+
       <form
         action={formAction}
-        className="mt-8 grid gap-6 rounded-[18px] border-[3px] border-ink bg-paper p-6 shadow-brut-xl"
+        className="mt-6 grid gap-6 rounded-[18px] border-[3px] border-ink bg-paper p-6 shadow-brut-xl"
+        key={defaults.circumstances + defaults.gameType + defaults.minPlayers + defaults.maxPlayers}
       >
-        <PlayerCountInput />
+        <PlayerCountInput defaultMin={defaults.minPlayers} defaultMax={defaults.maxPlayers} />
         {fieldErrors.minPlayers && (
           <p className="text-sm font-semibold text-[#b8175d]">{fieldErrors.minPlayers}</p>
         )}
@@ -112,17 +169,17 @@ function FormView({
           <p className="text-sm font-semibold text-[#b8175d]">{fieldErrors.maxPlayers}</p>
         )}
 
-        <CircumstancesInput />
+        <CircumstancesInput defaultValue={defaults.circumstances} />
         {fieldErrors.circumstances && (
           <p className="text-sm font-semibold text-[#b8175d]">{fieldErrors.circumstances}</p>
         )}
 
-        <GameTypeSelector />
+        <GameTypeSelector defaultValue={defaults.gameType} />
         {fieldErrors.gameType && (
           <p className="text-sm font-semibold text-[#b8175d]">{fieldErrors.gameType}</p>
         )}
 
-        <AvailablePropsSelector />
+        <AvailablePropsSelector defaultProps={defaults.props} />
 
         <button
           type="submit"

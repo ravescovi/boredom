@@ -1,7 +1,10 @@
-// apps/web/components/GameTypeSelector.tsx
 const gameTypes = ["Creative", "Conversation", "Puzzle", "Collaborative", "Party-light"];
 
-export function GameTypeSelector() {
+type Props = {
+  defaultValue?: string;
+};
+
+export function GameTypeSelector({ defaultValue = "creative" }: Props = {}) {
   return (
     <div className="grid gap-2">
       <label htmlFor="gameType" className="text-[12px] font-bold uppercase tracking-[.03em]">
@@ -10,6 +13,7 @@ export function GameTypeSelector() {
       <select
         id="gameType"
         name="gameType"
+        defaultValue={defaultValue}
         className="w-full appearance-none rounded-[10px] border-[3px] border-ink bg-white px-3.5 py-3 pr-9 text-sm font-semibold shadow-brut-sm"
         style={{
           backgroundImage:

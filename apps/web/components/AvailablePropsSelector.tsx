@@ -1,4 +1,3 @@
-// apps/web/components/AvailablePropsSelector.tsx
 const props = [
   { value: "paper", emoji: "📄", label: "Paper" },
   { value: "pens", emoji: "✏️", label: "Pens" },
@@ -9,7 +8,12 @@ const props = [
   { value: "sticky notes", emoji: "📝", label: "Sticky notes" }
 ];
 
-export function AvailablePropsSelector() {
+type Props = {
+  defaultProps?: string[];
+};
+
+export function AvailablePropsSelector({ defaultProps }: Props = {}) {
+  const selected = defaultProps && defaultProps.length > 0 ? new Set(defaultProps) : new Set(["paper", "pens"]);
   return (
     <fieldset className="grid gap-2">
       <legend className="text-[12px] font-bold uppercase tracking-[.03em]">Available props</legend>
@@ -23,7 +27,7 @@ export function AvailablePropsSelector() {
               name="props"
               type="checkbox"
               value={prop.value}
-              defaultChecked={prop.value === "paper" || prop.value === "pens"}
+              defaultChecked={selected.has(prop.value)}
               className="sr-only"
             />
             <span className="text-[22px] leading-none" aria-hidden="true">
