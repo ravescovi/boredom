@@ -1,46 +1,48 @@
-export function CircumstancesInput() {
-  const options = [
-    {
-      emoji: "🛋️",
-      label: "Chill hangout",
-      value: "Friends relaxing indoors with paper, pens, and a 20-minute window."
-    },
-    {
-      emoji: "🍕",
-      label: "Party table",
-      value: "A cheerful group gathered around a table with snacks, phones away, paper, and pens."
-    },
-    {
-      emoji: "🚗",
-      label: "Waiting around",
-      value: "People waiting together with limited space, low energy, and a need for quick laughs."
-    },
-    {
-      emoji: "☕",
-      label: "Cozy chat",
-      value: "A relaxed conversation setting with comfortable seats and simple materials."
-    }
-  ];
+// apps/web/components/CircumstancesInput.tsx
+const circumstances = [
+  {
+    emoji: "🛋️",
+    label: "Chill hangout",
+    value: "Friends relaxing indoors with paper, pens, and a 20-minute window."
+  },
+  {
+    emoji: "🍕",
+    label: "Party table",
+    value: "A cheerful group gathered around a table with snacks, phones away, paper, and pens."
+  },
+  {
+    emoji: "🚗",
+    label: "Waiting around",
+    value: "People waiting together with limited space, low energy, and a need for quick laughs."
+  },
+  {
+    emoji: "☕",
+    label: "Cozy chat",
+    value: "A relaxed conversation setting with comfortable seats and simple materials."
+  }
+];
 
+export function CircumstancesInput() {
   return (
-    <fieldset className="grid gap-3">
-      <legend className="text-lg font-semibold text-[#251646]">Circumstances</legend>
-      <div className="grid gap-3 sm:grid-cols-2">
-        {options.map((option, index) => (
+    <fieldset className="grid gap-2">
+      <legend className="text-[12px] font-bold uppercase tracking-[.03em]">The vibe</legend>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {circumstances.map((item, index) => (
           <label
-            key={option.label}
-            className="flex cursor-pointer items-center gap-3 rounded-md border border-[#ffd166] bg-white px-3 py-3 text-[#251646]"
+            key={item.label}
+            className="flex cursor-pointer flex-col items-center gap-1 rounded-[10px] border-2 border-ink bg-white px-1.5 py-2.5 text-xs font-semibold transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brut-sm has-[:checked]:bg-butter has-[:checked]:shadow-brut-sm"
           >
             <input
               name="circumstances"
               type="radio"
-              value={option.value}
+              value={item.value}
               defaultChecked={index === 0}
+              className="sr-only"
             />
-            <span className="text-2xl" aria-hidden="true">
-              {option.emoji}
+            <span className="text-[22px] leading-none" aria-hidden="true">
+              {item.emoji}
             </span>
-            <span className="font-medium">{option.label}</span>
+            <span>{item.label}</span>
           </label>
         ))}
       </div>
