@@ -81,10 +81,10 @@ export default function HomePage() {
                 Start the party 🎉
               </Link>
               <Link
-                href="/games/preview"
+                href="/generate"
                 className="inline-flex items-center gap-2 rounded-xl border-[3px] border-ink bg-paper px-5 py-3.5 font-bold text-ink shadow-brut-lg transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_#1A1A1A] active:translate-x-0.5 active:translate-y-0.5 active:shadow-brut-press"
               >
-                Peek at a game
+                Try it
               </Link>
             </div>
 
@@ -104,7 +104,7 @@ export default function HomePage() {
           </div>
 
           <form
-            action="/games/preview"
+            action="/generate"
             className="relative rounded-[18px] border-[3px] border-ink bg-paper px-6 py-6 shadow-brut-xl"
           >
             <span
