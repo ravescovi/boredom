@@ -7,3 +7,4 @@ coverage
 .env.local
 packages/database/generated
 .superpowers
+.gstack/
