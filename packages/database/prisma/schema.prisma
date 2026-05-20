@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum GameVisibility {
+  PRIVATE
+  UNLISTED
+  PUBLIC
+}
+
+enum GenerationStatus {
+  STARTED
+  CLARIFICATION_REQUESTED
+  COMPLETED
+  REJECTED
+  FAILED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String?  @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  games            Game[]
+  remixes          GameRemix[]       @relation("RemixCreator")
+  generationEvents GenerationEvent[]
+}
+
+model Game {
+  id          String         @id @default(cuid())
+  ownerId     String
+  title       String
+  summary     String
+  visibility  GameVisibility @default(PRIVATE)
+  currentJson Json
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  owner            User              @relation(fields: [ownerId], references: [id])
+  versions         GameVersion[]
+  sourceRemixes    GameRemix[]       @relation("SourceGame")
+  remixedGames     GameRemix[]       @relation("RemixedGame")
+  generationEvents GenerationEvent[]
+}
+
+model GameVersion {
+  id                  String   @id @default(cuid())
+  gameId              String
+  versionNumber       Int
+  specJson            Json
+  markdownSnapshot    String?
+  promptVersion       String
+  safetyPolicyVersion String
+  createdAt           DateTime @default(now())
+
+  game Game @relation(fields: [gameId], references: [id])
+
+  @@unique([gameId, versionNumber])
+}
+
+model GameRemix {
+  id              String   @id @default(cuid())
+  sourceGameId    String
+  remixedGameId   String
+  remixedByUserId String
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  sourceGame    Game @relation("SourceGame", fields: [sourceGameId], references: [id])
+  remixedGame   Game @relation("RemixedGame", fields: [remixedGameId], references: [id])
+  remixedByUser User @relation("RemixCreator", fields: [remixedByUserId], references: [id])
+}
+
+model GameComponentDefinition {
+  id             String   @id @default(cuid())
+  key            String   @unique
+  name           String
+  category       String
+  description    String
+  schemaJson     Json
+  safetyReviewed Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model GenerationEvent {
+  id                  String           @id @default(cuid())
+  userId              String
+  gameId              String?
+  status              GenerationStatus
+  inputJson           Json
+  outputJson          Json?
+  rejectionReasons    String[]
+  promptVersion       String
+  safetyPolicyVersion String
+  createdAt           DateTime         @default(now())
+
+  user User  @relation(fields: [userId], references: [id])
+  game Game? @relation(fields: [gameId], references: [id])
+}
