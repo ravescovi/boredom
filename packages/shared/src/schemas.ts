@@ -25,15 +25,6 @@ export const SafetyPolicySchema = z.object({
 });
 export type SafetyPolicy = z.infer<typeof SafetyPolicySchema>;
 
-export const GameComponentSchema = z.object({
-  id: z.string().min(1),
-  name: z.string().min(1),
-  description: z.string().min(1),
-  category: z.enum(["setup", "rule", "turn", "scoring", "variant", "safety"]),
-  safetyReviewed: z.boolean()
-});
-export type GameComponent = z.infer<typeof GameComponentSchema>;
-
 export const RemixMetadataSchema = z.object({
   sourceGameId: z.string().min(1).optional(),
   sourceVersionId: z.string().min(1).optional(),
@@ -49,17 +40,16 @@ export const GameSpecSchema = z.object({
   playerCount: PlayerConfigSchema,
   durationMinutes: z.number().int().min(1).max(240),
   ageRating: z.string().min(1),
-  requiredMaterials: z.array(z.string().min(1)),
-  approvedComponents: z.array(GameComponentSchema),
-  setup: z.array(z.string().min(1)),
-  rules: z.array(z.string().min(1)),
-  turnStructure: z.array(z.string().min(1)),
-  gameplayLoop: z.array(z.string().min(1)),
-  scoring: z.array(z.string().min(1)),
+  requiredMaterials: z.array(z.string().min(1)).max(8),
+  setup: z.array(z.string().min(1)).min(2).max(6),
+  rules: z.array(z.string().min(1)).min(3).max(7),
+  turnStructure: z.array(z.string().min(1)).min(2).max(6),
+  gameplayLoop: z.array(z.string().min(1)).min(2).max(6),
+  scoring: z.array(z.string().min(1)).min(1).max(4),
   winCondition: z.string().min(1),
-  edgeCases: z.array(z.string().min(1)),
-  variants: z.array(z.string().min(1)),
-  safetyNotes: z.array(z.string().min(1)),
+  edgeCases: z.array(z.string().min(1)).max(4),
+  variants: z.array(z.string().min(1)).max(3),
+  safetyNotes: z.array(z.string().min(1)).min(1).max(4),
   commercialUseAllowed: z.literal(false)
 });
 export type GameSpec = z.infer<typeof GameSpecSchema>;

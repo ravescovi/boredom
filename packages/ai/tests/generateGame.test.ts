@@ -15,7 +15,13 @@ const input = {
 };
 
 const validCandidate = mockGenerateGame(input);
-const invalidCandidate = { ...validCandidate, rules: ["Players drink when they miss a clue."] };
+const invalidCandidate = {
+  ...validCandidate,
+  rules: [
+    "Players drink a small glass each round when they miss a clue.",
+    ...validCandidate.rules
+  ]
+};
 
 describe("generateGame", () => {
   it("returns ok on first valid call (no retry)", async () => {

@@ -39,7 +39,7 @@ describe("createAnthropicProvider", () => {
     expect(client.messages.create).toHaveBeenCalledTimes(1);
     const args = (client.messages.create as ReturnType<typeof vi.fn>).mock.calls[0][0];
 
-    expect(args.model).toBe("claude-sonnet-4-6");
+    expect(args.model).toBe("claude-haiku-4-5-20251001");
     expect(Array.isArray(args.system)).toBe(true);
     expect(args.system[0].cache_control).toEqual({ type: "ephemeral" });
     expect(args.tools).toHaveLength(1);

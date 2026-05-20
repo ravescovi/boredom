@@ -12,15 +12,18 @@ const baseInput = {
 const validCandidate = mockGenerateGame(baseInput);
 const drinkingCandidate = {
   ...validCandidate,
-  rules: ["Players drink when they miss a clue."]
+  rules: [
+    "Players drink a small glass each round when they miss a clue.",
+    ...validCandidate.rules
+  ]
 };
 const gamblingCandidate = {
   ...validCandidate,
-  scoring: ["Players wager points for money."]
+  scoring: ["Players wager points that can be exchanged for money.", ...validCandidate.scoring]
 };
 const physicalCandidate = {
   ...validCandidate,
-  gameplayLoop: ["Players complete a stunt before guessing."]
+  gameplayLoop: ["Players complete a stunt before guessing.", ...validCandidate.gameplayLoop]
 };
 
 function buildForm(overrides: Record<string, string | string[]> = {}): FormData {

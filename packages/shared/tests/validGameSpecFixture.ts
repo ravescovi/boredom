@@ -8,19 +8,11 @@ export const validGameSpecFixture: GameSpec = {
   durationMinutes: 20,
   ageRating: "8+",
   requiredMaterials: ["paper", "pens", "timer"],
-  approvedComponents: [
-    {
-      id: "component_original_pattern_prompt",
-      name: "Original Pattern Prompt",
-      description: "Players create simple original symbol patterns for others to interpret.",
-      category: "rule",
-      safetyReviewed: true
-    }
-  ],
   setup: ["Give each player paper and a pen.", "Set a timer for two-minute rounds."],
   rules: [
     "Players describe patterns without copying protected game formats.",
-    "Players keep all prompts safe, non-physical, and non-commercial."
+    "Players keep all prompts safe, non-physical, and non-commercial.",
+    "Players take turns presenting and interpreting patterns."
   ],
   turnStructure: ["One player draws an original pattern.", "Other players write a short guess."],
   gameplayLoop: [

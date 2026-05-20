@@ -13,7 +13,7 @@ export function selectProvider(env: ProviderEnv): GameProvider {
   const key = env.ANTHROPIC_API_KEY;
   if (key) {
     const client = new Anthropic({ apiKey: key });
-    const model = env.BORDON_GENERATOR_MODEL || "claude-sonnet-4-6";
+    const model = env.BORDON_GENERATOR_MODEL || "claude-haiku-4-5-20251001";
     return createAnthropicProvider(client, model);
   }
   if (env.NODE_ENV === "production") {

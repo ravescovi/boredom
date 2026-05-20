@@ -20,22 +20,6 @@ export function mockGenerateGame(input: MockGeneratorInput): GameSpec {
     durationMinutes: 20,
     ageRating: "8+",
     requiredMaterials: props,
-    approvedComponents: [
-      {
-        id: "component_context_clue",
-        name: "Context Clue",
-        description: "A prompt based on ordinary, safe details from the current setting.",
-        category: "rule",
-        safetyReviewed: true
-      },
-      {
-        id: "component_table_turn",
-        name: "Table Turn",
-        description: "A seated or stationary turn structure with no physical-risk actions.",
-        category: "turn",
-        safetyReviewed: true
-      }
-    ],
     setup: [
       `Use this context: ${input.circumstances}`,
       "Give each player a writing surface or shared note area.",

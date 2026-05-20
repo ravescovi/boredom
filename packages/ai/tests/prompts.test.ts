@@ -8,7 +8,7 @@ import {
 
 describe("FINAL_GAME_PROMPT_VERSION", () => {
   it("is bumped to v0.2.0 because the template now embeds schema + tool instructions", () => {
-    expect(FINAL_GAME_PROMPT_VERSION).toBe("final-game-v0.2.0");
+    expect(FINAL_GAME_PROMPT_VERSION).toBe("final-game-v0.3.0");
   });
 });
 

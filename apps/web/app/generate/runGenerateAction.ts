@@ -165,7 +165,7 @@ export async function runGenerateAction(
       promptVersion: result.promptVersion,
       safetyPolicyVersion: result.safetyPolicyVersion,
       latencyMs,
-      model: "claude-sonnet-4-6"
+      model: process.env.BORDON_GENERATOR_MODEL || "claude-haiku-4-5-20251001"
     });
     return result;
   }
@@ -179,7 +179,7 @@ export async function runGenerateAction(
       promptVersion: result.promptVersion,
       safetyPolicyVersion: result.safetyPolicyVersion,
       latencyMs,
-      model: "claude-sonnet-4-6"
+      model: process.env.BORDON_GENERATOR_MODEL || "claude-haiku-4-5-20251001"
     });
     return {
       status: "rejected",

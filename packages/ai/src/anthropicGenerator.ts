@@ -5,8 +5,8 @@ import type { MockGeneratorInput } from "./mockGenerator";
 import { buildSystemPrompt } from "./prompts";
 import type { GameProvider } from "./generateGame";
 
-const DEFAULT_MODEL = "claude-sonnet-4-6";
-const MAX_TOKENS = 4096;
+const DEFAULT_MODEL = "claude-haiku-4-5-20251001";
+const MAX_TOKENS = 2048;
 
 function buildToolInputSchema() {
   const schema = zodToJsonSchema(GameSpecSchema, {
