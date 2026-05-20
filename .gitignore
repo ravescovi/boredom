@@ -6,3 +6,4 @@ coverage
 .env
 .env.local
 packages/database/generated
+.superpowers
