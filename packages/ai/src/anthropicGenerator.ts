@@ -43,12 +43,13 @@ export function createAnthropicProvider(
     ];
 
     if (feedback && feedback.length > 0) {
+      const retryToolUseId = "retry_prior";
       messages.push({
         role: "assistant",
         content: [
           {
             type: "tool_use",
-            id: "retry_prior",
+            id: retryToolUseId,
             name: "submit_game",
             input: { note: "previous attempt rejected" }
           }
@@ -56,10 +57,19 @@ export function createAnthropicProvider(
       });
       messages.push({
         role: "user",
-        content:
-          "That game failed validation for these reasons:\n" +
-          feedback.map((r) => `- ${r}`).join("\n") +
-          "\nGenerate a new game that addresses every reason. Call submit_game again."
+        content: [
+          {
+            type: "tool_result",
+            tool_use_id: retryToolUseId,
+            content:
+              "REJECTED. Reasons:\n" +
+              feedback.map((r) => `- ${r}`).join("\n")
+          },
+          {
+            type: "text",
+            text: "Generate a new game that addresses every reason. Call submit_game again."
+          }
+        ]
       });
     }
 

@@ -62,17 +62,30 @@ describe("createAnthropicProvider", () => {
     expect(text).toContain("pens");
   });
 
-  it("appends a failed tool_use turn and reasons feedback when feedback is provided", async () => {
+  it("appends a tool_use assistant turn paired with a tool_result user turn carrying the reasons", async () => {
     const client = fakeClient(successfulResponse);
     const provider = createAnthropicProvider(client);
 
     await provider(input, ["Unsafe policy term detected: drink"]);
 
     const args = (client.messages.create as ReturnType<typeof vi.fn>).mock.calls[0][0];
-    expect(args.messages.length).toBeGreaterThanOrEqual(2);
-    const last = args.messages[args.messages.length - 1];
-    expect(last.role).toBe("user");
-    expect(JSON.stringify(last.content)).toMatch(/drink/);
+    expect(args.messages.length).toBe(3);
+
+    const assistant = args.messages[1];
+    expect(assistant.role).toBe("assistant");
+    expect(assistant.content[0].type).toBe("tool_use");
+    const toolUseId = assistant.content[0].id;
+    expect(typeof toolUseId).toBe("string");
+
+    const userTurn = args.messages[2];
+    expect(userTurn.role).toBe("user");
+    expect(Array.isArray(userTurn.content)).toBe(true);
+    const toolResult = userTurn.content.find(
+      (b: { type: string }) => b.type === "tool_result"
+    );
+    expect(toolResult).toBeDefined();
+    expect(toolResult.tool_use_id).toBe(toolUseId);
+    expect(JSON.stringify(userTurn.content)).toMatch(/drink/);
   });
 
   it("returns the tool_use.input as the candidate", async () => {
