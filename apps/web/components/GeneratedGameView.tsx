@@ -2,8 +2,13 @@ import type { GameSpec } from "@bordon-ai/shared";
 import { renderInlineMarkdown } from "../lib/inlineMarkdown";
 
 type Props = {
-  game: GameSpec;
+  game: GameSpec | Partial<GameSpec>;
+  streaming?: boolean;
 };
+
+function arr(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string" && v.length > 0) : [];
+}
 
 function Card({
   emoji,
@@ -90,74 +95,124 @@ function Pill({
   );
 }
 
-export function GeneratedGameView({ game }: Props) {
+export function GeneratedGameView({ game, streaming = false }: Props) {
+  const requiredMaterials = arr(game.requiredMaterials);
+  const setup = arr(game.setup);
+  const rules = arr(game.rules);
+  const turnStructure = arr(game.turnStructure);
+  const gameplayLoop = arr(game.gameplayLoop);
+  const scoring = arr(game.scoring);
+  const edgeCases = arr(game.edgeCases);
+  const variants = arr(game.variants);
+  const safetyNotes = arr(game.safetyNotes);
+
   return (
     <article className="grid gap-6">
       <header className="grid gap-4">
-        <h1 className="font-display text-[clamp(40px,6vw,72px)] font-extrabold leading-[.92] -tracking-[.03em]">
-          {game.title}
-        </h1>
-        <p className="max-w-[640px] text-[18px] leading-[1.55] text-ink/85">
-          {renderInlineMarkdown(game.summary)}
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <Pill tone="sky">
-            👥 {game.playerCount.min}-{game.playerCount.max} players
-          </Pill>
-          <Pill tone="butter">⏱️ {game.durationMinutes} min</Pill>
-          <Pill tone="mint">🌱 Ages {game.ageRating}</Pill>
-        </div>
+        {game.title ? (
+          <h1 className="font-display text-[clamp(40px,6vw,72px)] font-extrabold leading-[.92] -tracking-[.03em]">
+            {game.title}
+            {streaming && <Caret />}
+          </h1>
+        ) : streaming ? (
+          <h1 className="font-display text-[clamp(40px,6vw,72px)] font-extrabold leading-[.92] -tracking-[.03em] text-ink/30">
+            Naming…
+          </h1>
+        ) : null}
+
+        {game.summary && (
+          <p className="max-w-[640px] text-[18px] leading-[1.55] text-ink/85">
+            {renderInlineMarkdown(game.summary)}
+            {streaming && requiredMaterials.length === 0 && <Caret />}
+          </p>
+        )}
+
+        {(game.playerCount || game.durationMinutes || game.ageRating) && (
+          <div className="flex flex-wrap gap-2">
+            {game.playerCount && (
+              <Pill tone="sky">
+                👥 {game.playerCount.min}-{game.playerCount.max} players
+              </Pill>
+            )}
+            {game.durationMinutes && <Pill tone="butter">⏱️ {game.durationMinutes} min</Pill>}
+            {game.ageRating && <Pill tone="mint">🌱 Ages {game.ageRating}</Pill>}
+          </div>
+        )}
       </header>
 
-      {game.requiredMaterials.length > 0 && (
+      {requiredMaterials.length > 0 && (
         <Card emoji="🧰" title="Grab these" tone="paper">
-          <BulletList items={game.requiredMaterials} />
+          <BulletList items={requiredMaterials} />
         </Card>
       )}
 
-      <Card emoji="🚀" title="Set it up" tone="paper">
-        <NumberedList items={game.setup} />
-      </Card>
+      {setup.length > 0 && (
+        <Card emoji="🚀" title="Set it up" tone="paper">
+          <NumberedList items={setup} />
+        </Card>
+      )}
 
-      <Card emoji="📜" title="Rules" tone="paper">
-        <BulletList items={game.rules} />
-      </Card>
+      {rules.length > 0 && (
+        <Card emoji="📜" title="Rules" tone="paper">
+          <BulletList items={rules} />
+        </Card>
+      )}
 
-      <Card emoji="🔁" title="Turn structure" tone="paper">
-        <NumberedList items={game.turnStructure} />
-      </Card>
+      {turnStructure.length > 0 && (
+        <Card emoji="🔁" title="Turn structure" tone="paper">
+          <NumberedList items={turnStructure} />
+        </Card>
+      )}
 
-      <Card emoji="🌀" title="How a round flows" tone="paper">
-        <NumberedList items={game.gameplayLoop} />
-      </Card>
+      {gameplayLoop.length > 0 && (
+        <Card emoji="🌀" title="How a round flows" tone="paper">
+          <NumberedList items={gameplayLoop} />
+        </Card>
+      )}
 
-      <Card emoji="🏆" title="Scoring & win condition" tone="butter">
-        <div className="grid gap-4">
-          <BulletList items={game.scoring} />
-          <p className="rounded-[10px] border-[3px] border-ink bg-paper px-4 py-3 text-[15px] font-semibold leading-[1.5]">
-            <span className="mr-2 font-display text-[14px] font-extrabold uppercase tracking-[.05em]">
-              Winner:
-            </span>
-            {renderInlineMarkdown(game.winCondition)}
-          </p>
-        </div>
-      </Card>
+      {(scoring.length > 0 || game.winCondition) && (
+        <Card emoji="🏆" title="Scoring & win condition" tone="butter">
+          <div className="grid gap-4">
+            {scoring.length > 0 && <BulletList items={scoring} />}
+            {game.winCondition && (
+              <p className="rounded-[10px] border-[3px] border-ink bg-paper px-4 py-3 text-[15px] font-semibold leading-[1.5]">
+                <span className="mr-2 font-display text-[14px] font-extrabold uppercase tracking-[.05em]">
+                  Winner:
+                </span>
+                {renderInlineMarkdown(game.winCondition)}
+              </p>
+            )}
+          </div>
+        </Card>
+      )}
 
-      {game.edgeCases.length > 0 && (
+      {edgeCases.length > 0 && (
         <Card emoji="🧩" title="Edge cases" tone="paper">
-          <BulletList items={game.edgeCases} />
+          <BulletList items={edgeCases} />
         </Card>
       )}
 
-      {game.variants.length > 0 && (
+      {variants.length > 0 && (
         <Card emoji="🎨" title="Variants" tone="lilac">
-          <BulletList items={game.variants} />
+          <BulletList items={variants} />
         </Card>
       )}
 
-      <Card emoji="🛟" title="Keep it comfy" tone="mint">
-        <BulletList items={game.safetyNotes} />
-      </Card>
+      {safetyNotes.length > 0 && (
+        <Card emoji="🛟" title="Keep it comfy" tone="mint">
+          <BulletList items={safetyNotes} />
+        </Card>
+      )}
     </article>
+  );
+}
+
+function Caret() {
+  return (
+    <span
+      aria-hidden="true"
+      className="ml-1 inline-block h-[0.8em] w-[3px] -translate-y-[2px] bg-ink align-middle"
+      style={{ animation: "brut-pulse 0.9s infinite" }}
+    />
   );
 }

@@ -5,4 +5,5 @@ export * from "./mockProvider";
 export * from "./policies";
 export * from "./prompts";
 export * from "./providerSelector";
+export * from "./streamGame";
 export * from "./validator";

@@ -2,24 +2,19 @@
 
 import type { GameSpec } from "@bordon-ai/shared";
 import { useEffect, useRef, useState } from "react";
-import { useActionState } from "react";
 import { AvailablePropsSelector } from "../../components/AvailablePropsSelector";
 import { CircumstancesInput } from "../../components/CircumstancesInput";
-import { CookingLoader } from "../../components/CookingLoader";
 import { GameTypeSelector } from "../../components/GameTypeSelector";
 import { GeneratedGameView } from "../../components/GeneratedGameView";
 import { GenerationErrorView } from "../../components/GenerationErrorView";
 import { PlayerCountInput } from "../../components/PlayerCountInput";
 import { ShareGameButton } from "../../components/ShareGameButton";
-import { generateGameAction } from "./actions";
-import type { ActionState } from "./runGenerateAction";
-
-const initialState: ActionState = { status: "idle" };
+import { useStreamingGenerate, type StreamingState } from "../../lib/useStreamingGenerate";
 
 const HOMEPAGE_REQUIRED_PARAMS = ["minPlayers", "maxPlayers", "circumstances", "gameType"];
 
 export default function GeneratePage() {
-  const [state, formAction, isPending] = useActionState(generateGameAction, initialState);
+  const { state, submit } = useStreamingGenerate();
   const [prefill, setPrefill] = useState<URLSearchParams | null>(null);
   const autoFiredRef = useRef(false);
 
@@ -29,15 +24,17 @@ export default function GeneratePage() {
     if (autoFiredRef.current) return;
     if (state.status !== "idle") return;
     const hasAllFields = HOMEPAGE_REQUIRED_PARAMS.every((k) => params.get(k));
-    if (params.get("auto") === "1" && hasAllFields) {
+    const isRandom = params.get("random") === "1";
+    if (params.get("auto") === "1" && (hasAllFields || isRandom)) {
       autoFiredRef.current = true;
       const fd = new FormData();
       for (const [k, v] of params.entries()) {
         if (k !== "auto") fd.append(k, v);
       }
-      formAction(fd);
+      submit(fd);
     }
-  }, [state.status, formAction]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.status]);
 
   return (
     <main className="mx-auto max-w-[860px] px-6 py-10">
@@ -46,7 +43,7 @@ export default function GeneratePage() {
           className="h-2 w-2 rounded-full bg-mint"
           style={{ animation: "brut-pulse 1.6s infinite" }}
         />
-        {isPending
+        {state.status === "streaming"
           ? "Cooking"
           : state.status === "ok"
             ? "Tonight's game"
@@ -56,8 +53,8 @@ export default function GeneratePage() {
       </span>
 
       <div className="mt-6">
-        {isPending ? (
-          <CookingLoader />
+        {state.status === "streaming" ? (
+          <GeneratedGameView game={state.partial} streaming />
         ) : state.status === "ok" ? (
           <ResultView game={state.game} />
         ) : state.status === "rejected" ? (
@@ -73,7 +70,7 @@ export default function GeneratePage() {
             onRetry={() => window.location.assign("/generate")}
           />
         ) : (
-          <FormView state={state} formAction={formAction} prefill={prefill} />
+          <FormView state={state} onSubmit={submit} prefill={prefill} />
         )}
       </div>
     </main>
@@ -110,11 +107,11 @@ function ResultView({ game }: { game: GameSpec }) {
 
 function FormView({
   state,
-  formAction,
+  onSubmit,
   prefill
 }: {
-  state: ActionState;
-  formAction: (formData: FormData) => void;
+  state: StreamingState;
+  onSubmit: (form: FormData) => void;
   prefill: URLSearchParams | null;
 }) {
   const fieldErrors = state.status === "input_error" ? state.fields : {};
@@ -125,6 +122,17 @@ function FormView({
     gameType: prefill?.get("gameType") ?? "creative",
     props: prefill?.getAll("props") ?? []
   };
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    onSubmit(new FormData(e.currentTarget));
+  }
+
+  function handleRandom() {
+    const fd = new FormData();
+    fd.set("random", "1");
+    onSubmit(fd);
+  }
 
   return (
     <>
@@ -146,20 +154,17 @@ function FormView({
       </p>
 
       <div className="mt-6">
-        <form action="/generate" method="get">
-          <input type="hidden" name="auto" value="1" />
-          <input type="hidden" name="random" value="1" />
-          <button
-            type="submit"
-            className="rounded-xl border-[3px] border-ink bg-butter px-5 py-3 font-display text-[16px] font-extrabold -tracking-[.01em] shadow-brut-lg transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_#1A1A1A]"
-          >
-            Just surprise me 🎲
-          </button>
-        </form>
+        <button
+          type="button"
+          onClick={handleRandom}
+          className="rounded-xl border-[3px] border-ink bg-butter px-5 py-3 font-display text-[16px] font-extrabold -tracking-[.01em] shadow-brut-lg transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_#1A1A1A]"
+        >
+          Just surprise me 🎲
+        </button>
       </div>
 
       <form
-        action={formAction}
+        onSubmit={handleSubmit}
         className="mt-6 grid gap-6 rounded-[18px] border-[3px] border-ink bg-paper p-6 shadow-brut-xl"
         key={defaults.circumstances + defaults.gameType + defaults.minPlayers + defaults.maxPlayers}
       >

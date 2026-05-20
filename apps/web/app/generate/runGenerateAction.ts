@@ -38,14 +38,14 @@ export type RunGenerateDeps = {
   log?: (entry: Record<string, unknown>) => void;
 };
 
-type ParsedInput = {
+export type ParsedInput = {
   playerCount: { min: number; max: number };
   circumstances: string;
   gameType: string;
   availableProps: string[];
 };
 
-type ParseResult =
+export type ParseResult =
   | { ok: true; value: ParsedInput }
   | { ok: false; fields: Record<string, string> };
 
@@ -75,7 +75,7 @@ function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function randomInput(): ParsedInput {
+export function randomInput(): ParsedInput {
   const min = 2 + Math.floor(Math.random() * 3);
   const max = min + 2 + Math.floor(Math.random() * 4);
   return {
@@ -86,7 +86,7 @@ function randomInput(): ParsedInput {
   };
 }
 
-function parseFormData(form: FormData): ParseResult {
+export function parseFormData(form: FormData): ParseResult {
   const fields: Record<string, string> = {};
 
   const minStr = String(form.get("minPlayers") ?? "");
@@ -117,7 +117,7 @@ function parseFormData(form: FormData): ParseResult {
   };
 }
 
-function categorizeReason(reason: string): RejectionCategory {
+export function categorizeReason(reason: string): RejectionCategory {
   const lc = reason.toLowerCase();
   if (DRINKING_TERMS.some((t) => lc.includes(t))) return "drinking_or_intoxication";
   if (GAMBLING_TERMS.some((t) => lc.includes(t))) return "gambling_or_stakes";
@@ -129,7 +129,7 @@ function categorizeReason(reason: string): RejectionCategory {
   return "other";
 }
 
-function dedupe<T>(arr: T[]): T[] {
+export function dedupe<T>(arr: T[]): T[] {
   return Array.from(new Set(arr));
 }
 
