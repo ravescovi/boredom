@@ -65,21 +65,9 @@ export default async function SharedGamePage({ params }: Props) {
   const resolved = await resolve(id);
   if (!resolved) notFound();
 
-  const isClassic = resolved.kind === "stored" && resolved.isClassic;
-
   return (
     <main className="mx-auto max-w-[860px] px-6 py-10">
-      <span className="inline-flex items-center gap-2 rounded-full border-2 border-ink bg-paper px-3 py-1.5 text-[12px] font-bold uppercase tracking-[.08em] shadow-brut-sm">
-        <span
-          className="h-2 w-2 rounded-full bg-mint"
-          style={{ animation: "brut-pulse 1.6s infinite" }}
-        />
-        {isClassic ? "Classic game" : "Shared game"}
-      </span>
-
-      <div className="mt-6">
-        <GeneratedGameView game={resolved.spec} />
-      </div>
+      <GeneratedGameView game={resolved.spec} />
 
       <div className="mt-6 flex flex-wrap gap-3">
         <Link
