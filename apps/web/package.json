@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@bordon-ai/ai": "workspace:*",
+    "@bordon-ai/database": "workspace:*",
     "@bordon-ai/shared": "workspace:*",
     "next": "^15.1.3",
     "react": "^19.0.0",

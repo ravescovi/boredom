@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CLASSIC_GAMES } from "../lib/classics";
 
 const circumstances = [
   {
@@ -195,6 +196,61 @@ export default function HomePage() {
               </button>
             </div>
           </form>
+        </div>
+      </section>
+
+      <section className="border-t-[3px] border-ink bg-paper py-16">
+        <div className="mx-auto max-w-[1180px] px-6">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full border-2 border-ink bg-butter px-3 py-1.5 text-[12px] font-bold uppercase tracking-[.08em] shadow-brut-sm">
+                🎯 Classic games
+              </span>
+              <h2 className="mt-4 font-display text-[clamp(36px,4.5vw,56px)] font-extrabold leading-[.95] -tracking-[.03em]">
+                Tried-and-true picks
+              </h2>
+              <p className="mt-3 max-w-[520px] text-[16px] leading-[1.55] text-ink/80">
+                Six party staples, ready to play with the same short links as the games you generate.
+              </p>
+            </div>
+            <Link
+              href="/scoreboard"
+              className="rounded-xl border-[3px] border-ink bg-paper px-5 py-3 font-display text-[16px] font-extrabold -tracking-[.01em] shadow-brut-lg transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_#1A1A1A]"
+            >
+              See the scoreboard 🏆
+            </Link>
+          </div>
+
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {CLASSIC_GAMES.map((classic) => (
+              <Link
+                key={classic.shortId}
+                href={`/g/${classic.shortId}`}
+                className="group block rounded-[18px] border-[3px] border-ink bg-cream p-5 shadow-brut-lg transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_#1A1A1A]"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[32px]" aria-hidden="true">
+                    {classic.emoji}
+                  </span>
+                  <span className="rounded-full border-2 border-ink bg-paper px-2.5 py-1 font-mono text-[12px] font-bold shadow-brut-sm">
+                    /g/{classic.shortId}
+                  </span>
+                </div>
+                <h3 className="mt-3 font-display text-[22px] font-extrabold leading-tight -tracking-[.02em]">
+                  {classic.spec.title}
+                </h3>
+                <p className="mt-2 text-[14px] leading-[1.5] text-ink/80">{classic.blurb}</p>
+                <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] font-bold uppercase tracking-[.05em]">
+                  <span className="rounded-full border-2 border-ink bg-sky px-2 py-0.5">
+                    {classic.spec.playerCount.min}–{classic.spec.playerCount.max} players
+                  </span>
+                  <span className="rounded-full border-2 border-ink bg-butter px-2 py-0.5">
+                    {classic.spec.durationMinutes} min
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 

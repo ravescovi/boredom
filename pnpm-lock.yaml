@@ -41,6 +41,9 @@ importers:
       '@bordon-ai/ai':
         specifier: workspace:*
         version: link:../../packages/ai
+      '@bordon-ai/database':
+        specifier: workspace:*
+        version: link:../../packages/database
       '@bordon-ai/shared':
         specifier: workspace:*
         version: link:../../packages/shared

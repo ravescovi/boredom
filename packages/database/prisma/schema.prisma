@@ -35,19 +35,25 @@ model User {
 
 model Game {
   id          String         @id @default(cuid())
-  ownerId     String
+  shortId     String         @unique
+  ownerId     String?
   title       String
   summary     String
-  visibility  GameVisibility @default(PRIVATE)
+  visibility  GameVisibility @default(PUBLIC)
   currentJson Json
+  score       Int            @default(0)
+  isClassic   Boolean        @default(false)
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 
-  owner            User              @relation(fields: [ownerId], references: [id])
+  owner            User?             @relation(fields: [ownerId], references: [id])
   versions         GameVersion[]
   sourceRemixes    GameRemix[]       @relation("SourceGame")
   remixedGames     GameRemix[]       @relation("RemixedGame")
   generationEvents GenerationEvent[]
+
+  @@index([score])
+  @@index([isClassic])
 }
 
 model GameVersion {

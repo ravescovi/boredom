@@ -2,19 +2,27 @@ import Link from "next/link";
 
 export function SiteNav() {
   return (
-    <nav className="mx-auto flex max-w-[1180px] items-center justify-between px-6 py-5">
+    <nav className="mx-auto flex max-w-[1180px] items-center justify-between gap-4 px-6 py-5">
       <Link
         href="/"
         className="font-display text-[22px] font-extrabold -tracking-[.04em] text-ink"
       >
         bordon<span className="text-hot">.</span>ai
       </Link>
-      <Link
-        href="/games/preview"
-        className="rounded-full border-2 border-ink bg-ink px-4 py-2.5 text-[13px] font-bold text-cream shadow-brut"
-      >
-        Peek at a game →
-      </Link>
+      <div className="flex items-center gap-3">
+        <Link
+          href="/scoreboard"
+          className="rounded-full border-2 border-ink bg-paper px-4 py-2.5 text-[13px] font-bold text-ink shadow-brut-sm"
+        >
+          🏆 Scoreboard
+        </Link>
+        <Link
+          href="/generate"
+          className="rounded-full border-2 border-ink bg-ink px-4 py-2.5 text-[13px] font-bold text-cream shadow-brut"
+        >
+          Make a game →
+        </Link>
+      </div>
     </nav>
   );
 }
