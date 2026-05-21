@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CLASSIC_GAMES } from "../../lib/classics";
 import { listScoreboard, type GameRecord } from "../../lib/games";
+import { StarButton } from "../../components/StarButton";
 
 export const dynamic = "force-dynamic";
 
@@ -73,37 +74,42 @@ export default async function ScoreboardPage() {
           </li>
         )}
         {rows.map((row, i) => (
-          <li
-            key={row.shortId}
-            className="grid grid-cols-[44px_1fr_auto] items-center gap-4 rounded-[14px] border-[3px] border-ink bg-paper p-4 shadow-brut-lg"
-          >
-            <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-ink bg-cream font-display text-[18px] font-extrabold shadow-brut-sm">
-              {i + 1}
-            </span>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <Link
-                  href={`/g/${row.shortId}`}
-                  className="font-display text-[20px] font-extrabold leading-tight -tracking-[.02em] hover:underline"
-                >
-                  {row.title}
-                </Link>
-                {row.isClassic && (
-                  <span className="rounded-full border-2 border-ink bg-butter px-2 py-0.5 text-[11px] font-bold uppercase tracking-[.05em] shadow-brut-sm">
-                    Classic
-                  </span>
-                )}
-              </div>
-              <p className="mt-1 line-clamp-2 text-[13px] leading-[1.45] text-ink/75">
-                {row.summary}
-              </p>
-              <span className="mt-1.5 inline-block rounded-full border-2 border-ink bg-cream px-2 py-0.5 font-mono text-[11px] font-bold shadow-brut-sm">
-                /g/{row.shortId}
+          <li key={row.shortId}>
+            <div className="relative grid grid-cols-[44px_1fr_auto] items-center gap-4 rounded-[14px] border-[3px] border-ink bg-paper p-4 shadow-brut-lg transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_#1A1A1A] focus-within:-translate-x-0.5 focus-within:-translate-y-0.5">
+              <Link
+                href={`/g/${row.shortId}`}
+                aria-label={`Open ${row.title}`}
+                className="absolute inset-0 rounded-[14px] focus:outline-none focus-visible:ring-4 focus-visible:ring-hot"
+              />
+              <span className="relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-ink bg-cream font-display text-[18px] font-extrabold shadow-brut-sm">
+                {i + 1}
               </span>
+              <div className="relative min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-display text-[20px] font-extrabold leading-tight -tracking-[.02em]">
+                    {row.title}
+                  </span>
+                  {row.isClassic && (
+                    <span className="rounded-full border-2 border-ink bg-butter px-2 py-0.5 text-[11px] font-bold uppercase tracking-[.05em] shadow-brut-sm">
+                      Classic
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 line-clamp-2 text-[13px] leading-[1.45] text-ink/75">
+                  {row.summary}
+                </p>
+                <span className="mt-1.5 inline-block rounded-full border-2 border-ink bg-cream px-2 py-0.5 font-mono text-[11px] font-bold shadow-brut-sm">
+                  /g/{row.shortId}
+                </span>
+              </div>
+              {usingFallback ? (
+                <span className="relative inline-flex items-center gap-1.5 rounded-xl border-[3px] border-ink bg-hot px-3 py-2 font-display text-[18px] font-extrabold shadow-brut-sm">
+                  ⭐ {row.score}
+                </span>
+              ) : (
+                <StarButton shortId={row.shortId} initialScore={row.score} compact />
+              )}
             </div>
-            <span className="inline-flex items-center gap-1.5 rounded-xl border-[3px] border-ink bg-hot px-3 py-2 font-display text-[18px] font-extrabold shadow-brut-sm">
-              ⭐ {row.score}
-            </span>
           </li>
         ))}
       </ol>

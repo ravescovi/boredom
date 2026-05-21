@@ -5,14 +5,17 @@ import { useState } from "react";
 type Props = {
   shortId: string;
   initialScore: number;
+  compact?: boolean;
 };
 
-export function StarButton({ shortId, initialScore }: Props) {
+export function StarButton({ shortId, initialScore, compact = false }: Props) {
   const [score, setScore] = useState(initialScore);
   const [pending, setPending] = useState(false);
   const [starred, setStarred] = useState(false);
 
-  async function handleStar() {
+  async function handleStar(e?: React.MouseEvent) {
+    e?.preventDefault();
+    e?.stopPropagation();
     if (pending || starred) return;
     setPending(true);
     try {
@@ -24,6 +27,22 @@ export function StarButton({ shortId, initialScore }: Props) {
     } finally {
       setPending(false);
     }
+  }
+
+  if (compact) {
+    return (
+      <button
+        type="button"
+        onClick={handleStar}
+        disabled={pending || starred}
+        aria-pressed={starred}
+        aria-label={starred ? "Starred" : "Star this game"}
+        className="relative z-10 inline-flex items-center gap-1.5 rounded-xl border-[3px] border-ink bg-hot px-3 py-2 font-display text-[18px] font-extrabold shadow-brut-sm transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brut-lg disabled:opacity-80"
+      >
+        <span aria-hidden="true">{starred ? "⭐" : "☆"}</span>
+        {score}
+      </button>
+    );
   }
 
   return (

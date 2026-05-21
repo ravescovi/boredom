@@ -9,6 +9,7 @@ import { GeneratedGameView } from "../../components/GeneratedGameView";
 import { GenerationErrorView } from "../../components/GenerationErrorView";
 import { PlayerCountInput } from "../../components/PlayerCountInput";
 import { ShareGameButton } from "../../components/ShareGameButton";
+import { StarButton } from "../../components/StarButton";
 import { useStreamingGenerate, type StreamingState } from "../../lib/useStreamingGenerate";
 
 const HOMEPAGE_REQUIRED_PARAMS = ["minPlayers", "maxPlayers", "circumstances", "gameType"];
@@ -78,6 +79,29 @@ export default function GeneratePage() {
 }
 
 function ResultView({ game }: { game: GameSpec }) {
+  const [shortId, setShortId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/games", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ spec: game })
+        });
+        if (!res.ok) return;
+        const data = (await res.json()) as { shortId?: string };
+        if (!cancelled && data.shortId) setShortId(data.shortId);
+      } catch {
+        // DB unavailable — fall back silently; share + star are non-essential.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [game]);
+
   return (
     <div className="grid gap-6">
       <GeneratedGameView game={game} />
@@ -99,7 +123,8 @@ function ResultView({ game }: { game: GameSpec }) {
             Random game 🎲
           </button>
         </form>
-        <ShareGameButton game={game} />
+        {shortId && <StarButton shortId={shortId} initialScore={0} />}
+        <ShareGameButton game={game} initialShortId={shortId ?? undefined} />
       </div>
     </div>
   );
