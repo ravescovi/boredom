@@ -26,6 +26,10 @@ The repo is a pnpm monorepo with one app and three packages. Dependency directio
 
 **Database.** Prisma schema in `packages/database/prisma/schema.prisma` (Postgres). `GameVersion` is immutable and stores `specJson` plus the optional rendered `markdownSnapshot`. `GenerationEvent` is the audit/quota record; `rejectionReasons` is a `String[]` populated from the validator's failure reasons.
 
+**Migrations on deploy.** Production deploys auto-apply pending migrations: the `apps/web` build script runs `prisma migrate deploy` when `VERCEL_ENV=production` (CI/preview/local builds skip it, keeping `build` DB-free). Migrations use `directUrl` (`DATABASE_URL_UNPOOLED`), since Neon's pooler is unreliable for DDL. Add a migration with `pnpm --filter @bordon-ai/database db:migrate`; do **not** rely on `prisma db push`. See `docs/decisions/0003-prod-db-reset-and-auto-migrate.md`.
+
+**Generation cache.** `/api/generate` serves a previously stored game for the same normalized input a configurable fraction of the time (`BORDON_CACHE_HIT_RATE`, default 0.5), skipping the model call; random requests always generate fresh. Cached games are re-validated through `GameSpecSchema` before serving. See `apps/web/lib/inputHash.ts` + `cacheRoll.ts`.
+
 ## Safety Constraints (Hard Rules)
 
 These are product invariants, not stylistic preferences. They must hold across product code, prompts, schemas, tests, and docs (see `AGENTS.md`, `docs/ai/SAFETY_POLICY.md`):
@@ -33,4 +37,4 @@ These are product invariants, not stylistic preferences. They must hold across p
 - No drinking/intoxication, gambling/betting/wagering/lotteries/financial stakes, physical-risk mechanics, dangerous dares/stunts/pain/restraint/weapons/unsafe movement, IP infringement, or commercialization.
 - `GameSpecSchema` pins `commercialUseAllowed: z.literal(false)` and `SafetyPolicySchema` pins each `prohibits*` flag to `z.literal(true)` — do not relax these.
 - Any schema or policy change requires a corresponding test in `packages/shared/tests` or `packages/ai/tests`.
-- Do not add external API keys, paid services, or production AI providers without explicit instruction. Auth, payments, and sharing workflows are intentionally deferred.
+- Do not add external API keys, paid services, or *new* production AI providers without explicit instruction. The Anthropic generator (`ANTHROPIC_API_KEY`) is the one configured provider. Auth and payments remain intentionally deferred. Sharing has since shipped: short-ID permalinks at `/g/[id]`, a `/scoreboard`, and cookie-deduped star voting (net-vote `Game.score`, see `docs/decisions/0002-net-vote-scoring.md`).
