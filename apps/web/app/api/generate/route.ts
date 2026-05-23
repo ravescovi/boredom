@@ -66,9 +66,14 @@ export async function POST(req: Request): Promise<Response> {
   // stored game for the same input a configurable fraction of the time, skipping
   // the model call entirely. Random requests always generate fresh.
   const inputHash = isRandom ? null : hashInput(input);
-  if (inputHash && shouldServeCached(parseCacheHitRate(process.env))) {
+  const cacheRate = parseCacheHitRate(process.env);
+  if (inputHash && shouldServeCached(cacheRate)) {
     const cached = await serveCachedGame(inputHash, input, encoder);
     if (cached) return cached;
+    // Rolled to serve from cache but nothing is stored for this input yet. Log
+    // the miss so cache effectiveness (hits / rolls) is measurable for tuning
+    // BORDON_CACHE_HIT_RATE, then fall through to a fresh generation.
+    console.log(JSON.stringify({ status: "cache_miss", inputHash, cacheRate }));
   }
 
   const selection = selectStreamingClient(process.env);
