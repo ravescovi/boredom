@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "build": "prisma generate --schema=../../packages/database/prisma/schema.prisma && next build",
+    "build": "if [ \"$VERCEL_ENV\" = \"production\" ] && [ -n \"$DATABASE_URL_UNPOOLED\" ]; then echo 'Applying pending Prisma migrations...' && prisma migrate deploy --schema=../../packages/database/prisma/schema.prisma; else echo 'Skipping migrate deploy (non-prod or DATABASE_URL_UNPOOLED unset)'; fi && prisma generate --schema=../../packages/database/prisma/schema.prisma && next build",
     "dev": "next dev",
     "lint": "eslint .",
     "test": "vitest run --passWithNoTests",
