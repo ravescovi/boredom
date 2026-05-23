@@ -8,3 +8,4 @@ coverage
 packages/database/generated
 .superpowers
 .gstack/
+packages/database/src/generated/

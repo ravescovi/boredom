@@ -3,17 +3,19 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "build": "if [ \"$VERCEL_ENV\" = \"production\" ] && [ -n \"$DATABASE_URL_UNPOOLED\" ]; then echo 'Applying pending Prisma migrations...' && prisma migrate deploy --schema=../../packages/database/prisma/schema.prisma; else echo 'Skipping migrate deploy (non-prod or DATABASE_URL_UNPOOLED unset)'; fi && prisma generate --schema=../../packages/database/prisma/schema.prisma && next build",
+    "build": "if [ \"$VERCEL_ENV\" = \"production\" ] && [ -n \"$DATABASE_URL_UNPOOLED\" ]; then echo 'Applying pending Prisma migrations...' && prisma migrate deploy --config=../../packages/database/prisma.config.ts; else echo 'Skipping migrate deploy (non-prod or DATABASE_URL_UNPOOLED unset)'; fi && prisma generate --config=../../packages/database/prisma.config.ts && next build",
     "dev": "next dev",
     "lint": "eslint .",
     "test": "vitest run --passWithNoTests",
-    "typecheck": "prisma generate --schema=../../packages/database/prisma/schema.prisma && tsc --noEmit"
+    "typecheck": "prisma generate --config=../../packages/database/prisma.config.ts && tsc --noEmit"
   },
   "dependencies": {
     "@bordon-ai/ai": "workspace:*",
     "@bordon-ai/database": "workspace:*",
     "@bordon-ai/shared": "workspace:*",
-    "@prisma/client": "^6.1.0",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "pg": "^8.13.1",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "next": "^15.1.3",
@@ -30,7 +32,7 @@
     "autoprefixer": "^10.4.20",
     "jsdom": "^29.1.1",
     "postcss": "^8.4.49",
-    "prisma": "^6.1.0",
+    "prisma": "^7.8.0",
     "tailwindcss": "^3.4.17"
   }
 }
