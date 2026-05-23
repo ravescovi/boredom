@@ -22,8 +22,12 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
 
+  const rawHash = (body as { inputHash?: unknown })?.inputHash;
+  const inputHash =
+    typeof rawHash === "string" && /^[a-f0-9]{64}$/.test(rawHash) ? rawHash : undefined;
+
   try {
-    const record = await createGameFromSpec(parsed.data);
+    const record = await createGameFromSpec(parsed.data, { inputHash });
     return NextResponse.json({
       shortId: record.shortId,
       score: record.score

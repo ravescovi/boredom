@@ -57,7 +57,7 @@ export default function GeneratePage() {
         {state.status === "streaming" ? (
           <GeneratedGameView game={state.partial} streaming />
         ) : state.status === "ok" ? (
-          <ResultView game={state.game} />
+          <ResultView game={state.game} shortId={state.shortId} inputHash={state.inputHash} />
         ) : state.status === "rejected" ? (
           <GenerationErrorView
             variant="rejected"
@@ -78,17 +78,31 @@ export default function GeneratePage() {
   );
 }
 
-function ResultView({ game }: { game: GameSpec }) {
-  const [shortId, setShortId] = useState<string | null>(null);
+function ResultView({
+  game,
+  shortId: servedShortId,
+  inputHash
+}: {
+  game: GameSpec;
+  shortId?: string;
+  inputHash?: string;
+}) {
+  const [shortId, setShortId] = useState<string | null>(servedShortId ?? null);
 
   useEffect(() => {
+    // Cache hit: the served game is already stored, so reuse its short ID rather
+    // than creating a duplicate row.
+    if (servedShortId) {
+      setShortId(servedShortId);
+      return;
+    }
     let cancelled = false;
     (async () => {
       try {
         const res = await fetch("/api/games", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ spec: game })
+          body: JSON.stringify({ spec: game, inputHash })
         });
         if (!res.ok) return;
         const data = (await res.json()) as { shortId?: string };
@@ -100,7 +114,7 @@ function ResultView({ game }: { game: GameSpec }) {
     return () => {
       cancelled = true;
     };
-  }, [game]);
+  }, [game, servedShortId, inputHash]);
 
   return (
     <div className="grid gap-6">

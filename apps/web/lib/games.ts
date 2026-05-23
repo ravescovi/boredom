@@ -59,7 +59,18 @@ export async function findGameByShortId(shortId: string): Promise<GameRecord | n
   return row ? toRecord(row) : null;
 }
 
-export async function createGameFromSpec(spec: GameSpec): Promise<GameRecord> {
+export async function findCachedGameByInputHash(inputHash: string): Promise<GameRecord | null> {
+  const row = await prisma.game.findFirst({
+    where: { inputHash, visibility: "PUBLIC", isClassic: false },
+    orderBy: { createdAt: "desc" }
+  });
+  return row ? toRecord(row) : null;
+}
+
+export async function createGameFromSpec(
+  spec: GameSpec,
+  opts: { inputHash?: string } = {}
+): Promise<GameRecord> {
   for (let attempt = 0; attempt < 5; attempt++) {
     const shortId = generateShortId();
     try {
@@ -70,7 +81,8 @@ export async function createGameFromSpec(spec: GameSpec): Promise<GameRecord> {
           title: stored.title,
           summary: stored.summary,
           currentJson: stored as unknown as Prisma.InputJsonValue,
-          visibility: "PUBLIC"
+          visibility: "PUBLIC",
+          inputHash: opts.inputHash ?? null
         }
       });
       return toRecord(row);

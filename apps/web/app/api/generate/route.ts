@@ -1,4 +1,12 @@
-import { mockGenerateGame, selectStreamingClient, streamGame, type StreamEvent } from "@bordon-ai/ai";
+import {
+  FINAL_GAME_PROMPT_VERSION,
+  SAFETY_POLICY_VERSION,
+  mockGenerateGame,
+  selectStreamingClient,
+  streamGame,
+  type StreamEvent
+} from "@bordon-ai/ai";
+import { GameSpecSchema } from "@bordon-ai/shared";
 import {
   categorizeReason,
   dedupe,
@@ -7,13 +15,24 @@ import {
   type ParsedInput,
   type RejectionCategory
 } from "../../generate/runGenerateAction";
+import { parseCacheHitRate, shouldServeCached } from "../../../lib/cacheRoll";
+import { hashInput } from "../../../lib/inputHash";
+import { findCachedGameByInputHash } from "../../../lib/games";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 type Outgoing =
   | { type: "partial"; partial: Record<string, unknown> }
-  | { type: "ok"; game: unknown; promptVersion: string; safetyPolicyVersion: string }
+  | {
+      type: "ok";
+      game: unknown;
+      promptVersion: string;
+      safetyPolicyVersion: string;
+      inputHash?: string;
+      shortId?: string;
+      cached?: boolean;
+    }
   | { type: "rejected"; categories: RejectionCategory[]; promptVersion: string; safetyPolicyVersion: string }
   | { type: "input_error"; fields: Record<string, string> }
   | { type: "error"; message: string };
@@ -42,6 +61,16 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const input = parsed.value;
+
+  // Generation cache: for deterministic (non-random) inputs, serve a previously
+  // stored game for the same input a configurable fraction of the time, skipping
+  // the model call entirely. Random requests always generate fresh.
+  const inputHash = isRandom ? null : hashInput(input);
+  if (inputHash && shouldServeCached(parseCacheHitRate(process.env))) {
+    const cached = await serveCachedGame(inputHash, input, encoder);
+    if (cached) return cached;
+  }
+
   const selection = selectStreamingClient(process.env);
 
   if (selection.mode === "unavailable") {
@@ -50,7 +79,7 @@ export async function POST(req: Request): Promise<Response> {
 
   if (selection.mode === "mock") {
     console.warn("ANTHROPIC_API_KEY not set; streaming a mock game instead of calling Anthropic");
-    return mockStream(input, encoder);
+    return mockStream(input, inputHash, encoder);
   }
 
   const startedAt = Date.now();
@@ -61,7 +90,7 @@ export async function POST(req: Request): Promise<Response> {
           client: selection.client,
           model: selection.model
         })) {
-          controller.enqueue(encoder.encode(sseEncode(translate(event, input, startedAt))));
+          controller.enqueue(encoder.encode(sseEncode(translate(event, input, startedAt, inputHash))));
           if (event.kind === "ok" || event.kind === "rejected" || event.kind === "error") {
             controller.close();
             return;
@@ -78,7 +107,12 @@ export async function POST(req: Request): Promise<Response> {
   return new Response(stream, { headers: sseHeaders() });
 }
 
-function translate(event: StreamEvent, input: ParsedInput, startedAt: number): Outgoing {
+function translate(
+  event: StreamEvent,
+  input: ParsedInput,
+  startedAt: number,
+  inputHash: string | null
+): Outgoing {
   if (event.kind === "partial") {
     return { type: "partial", partial: event.partial as Record<string, unknown> };
   }
@@ -92,6 +126,7 @@ function translate(event: StreamEvent, input: ParsedInput, startedAt: number): O
         safetyPolicyVersion: event.safetyPolicyVersion,
         latencyMs: Date.now() - startedAt,
         streamed: true,
+        cached: false,
         model: process.env.BORDON_GENERATOR_MODEL || "claude-haiku-4-5-20251001"
       })
     );
@@ -99,7 +134,8 @@ function translate(event: StreamEvent, input: ParsedInput, startedAt: number): O
       type: "ok",
       game: event.game,
       promptVersion: event.promptVersion,
-      safetyPolicyVersion: event.safetyPolicyVersion
+      safetyPolicyVersion: event.safetyPolicyVersion,
+      ...(inputHash ? { inputHash } : {})
     };
   }
   if (event.kind === "rejected") {
@@ -136,7 +172,7 @@ function translate(event: StreamEvent, input: ParsedInput, startedAt: number): O
   return { type: "error", message: event.message };
 }
 
-function mockStream(input: ParsedInput, encoder: TextEncoder): Response {
+function mockStream(input: ParsedInput, inputHash: string | null, encoder: TextEncoder): Response {
   const game = mockGenerateGame(input);
   const fieldOrder: (keyof typeof game)[] = [
     "title",
@@ -165,8 +201,61 @@ function mockStream(input: ParsedInput, encoder: TextEncoder): Response {
           sseEncode({
             type: "ok",
             game,
-            promptVersion: "final-game-v0.3.0",
-            safetyPolicyVersion: "safety-policy-v0.1.0"
+            promptVersion: FINAL_GAME_PROMPT_VERSION,
+            safetyPolicyVersion: SAFETY_POLICY_VERSION,
+            ...(inputHash ? { inputHash } : {})
+          })
+        )
+      );
+      controller.close();
+    }
+  });
+  return new Response(stream, { headers: sseHeaders() });
+}
+
+async function serveCachedGame(
+  inputHash: string,
+  input: ParsedInput,
+  encoder: TextEncoder
+): Promise<Response | null> {
+  let record;
+  try {
+    record = await findCachedGameByInputHash(inputHash);
+  } catch (err) {
+    // A cache lookup failure must never break generation — fall through to the model.
+    console.error("generate: cache lookup failed", err);
+    return null;
+  }
+  if (!record) return null;
+
+  // Re-validate the stored spec before serving, upholding the invariant that only
+  // GameSpecSchema-valid games reach the UI. A bad row is skipped, not served.
+  const parsed = GameSpecSchema.safeParse(record.spec);
+  if (!parsed.success) return null;
+
+  console.log(
+    JSON.stringify({
+      status: "ok",
+      inputJson: input,
+      cached: true,
+      shortId: record.shortId,
+      promptVersion: FINAL_GAME_PROMPT_VERSION,
+      safetyPolicyVersion: SAFETY_POLICY_VERSION,
+      streamed: true
+    })
+  );
+
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(
+        encoder.encode(
+          sseEncode({
+            type: "ok",
+            game: parsed.data,
+            promptVersion: FINAL_GAME_PROMPT_VERSION,
+            safetyPolicyVersion: SAFETY_POLICY_VERSION,
+            shortId: record.shortId,
+            cached: true
           })
         )
       );

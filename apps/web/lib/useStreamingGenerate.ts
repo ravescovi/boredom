@@ -19,6 +19,9 @@ export type StreamingState =
       game: GameSpec;
       promptVersion: string;
       safetyPolicyVersion: string;
+      shortId?: string;
+      inputHash?: string;
+      cached?: boolean;
     }
   | {
       status: "rejected";
@@ -31,7 +34,15 @@ export type StreamingState =
 
 type ServerEvent =
   | { type: "partial"; partial: Partial<GameSpec> }
-  | { type: "ok"; game: GameSpec; promptVersion: string; safetyPolicyVersion: string }
+  | {
+      type: "ok";
+      game: GameSpec;
+      promptVersion: string;
+      safetyPolicyVersion: string;
+      shortId?: string;
+      inputHash?: string;
+      cached?: boolean;
+    }
   | {
       type: "rejected";
       categories: RejectionCategory[];
@@ -131,7 +142,10 @@ function handleRawEvent(raw: string, setState: (s: StreamingState) => void) {
         status: "ok",
         game: parsed.game,
         promptVersion: parsed.promptVersion,
-        safetyPolicyVersion: parsed.safetyPolicyVersion
+        safetyPolicyVersion: parsed.safetyPolicyVersion,
+        shortId: parsed.shortId,
+        inputHash: parsed.inputHash,
+        cached: parsed.cached
       });
       return;
     case "rejected":
