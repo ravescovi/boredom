@@ -3,10 +3,12 @@ import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
   dsn: "https://d416f42f5b3a04680ba063e5d7546338@o4511153446912000.ingest.us.sentry.io/4511445536604160",
-  tracesSampleRate: process.env.NODE_ENV === "development" ? 1.0 : 0.1,
+  // Errors-only: performance tracing and Session Replay are tree-shaken out of
+  // the bundle (see bundleSizeOptimizations in next.config), keeping the client
+  // First Load JS lean. We capture exceptions, not transactions.
   sendDefaultPii: true
-  // Session Replay intentionally omitted to keep the client bundle lean.
 });
 
-// Instruments client-side navigations for tracing.
+// Exported to satisfy @sentry/nextjs's build-time check; a no-op while
+// performance tracing is tree-shaken out (errors-only).
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
