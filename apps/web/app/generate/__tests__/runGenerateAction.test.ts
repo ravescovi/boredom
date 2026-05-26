@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { mockGenerateGame } from "@bordon-ai/ai";
-import type { GameProvider } from "@bordon-ai/ai";
+import { mockGenerateGame } from "@bordom-ai/ai";
+import type { GameProvider } from "@bordom-ai/ai";
 import { runGenerateAction } from "../runGenerateAction";
 
 const baseInput = {

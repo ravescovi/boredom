@@ -6,17 +6,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Run from the repo root unless noted. Package manager is pnpm 9 (workspaces).
 
-- `pnpm dev` — runs only the Next.js app (`@bordon-ai/web`).
+- `pnpm dev` — runs only the Next.js app (`@bordom-ai/web`).
 - `pnpm build` / `pnpm lint` / `pnpm test` / `pnpm typecheck` — fan out across all workspaces via `pnpm -r`.
 - `pnpm format` — Prettier across the whole repo.
-- `pnpm --filter @bordon-ai/ai test -- tests/validator.test.ts` — run a single Vitest file in one package. Pass `-t "<name>"` to filter by test name.
-- `pnpm --filter @bordon-ai/database db:migrate` — Prisma dev migration (requires `DATABASE_URL`).
+- `pnpm --filter @bordom-ai/ai test -- tests/validator.test.ts` — run a single Vitest file in one package. Pass `-t "<name>"` to filter by test name.
+- `pnpm --filter @bordom-ai/database db:migrate` — Prisma dev migration (requires `DATABASE_URL`).
 
 There is no root-level Vitest config; each package owns its own `test` script. `apps/web` and `packages/database` use `--passWithNoTests`, so test files only live in `packages/shared` and `packages/ai` today.
 
 ## Architecture
 
-The repo is a pnpm monorepo with one app and three packages. Dependency direction is `apps/web` → `@bordon-ai/ai` → `@bordon-ai/shared`. `@bordon-ai/database` is currently standalone (only re-exports `PrismaClient`). TS path aliases in `tsconfig.base.json` resolve workspace packages directly to their `src/index.ts`, so no build step is needed for cross-package imports during dev.
+The repo is a pnpm monorepo with one app and three packages. Dependency direction is `apps/web` → `@bordom-ai/ai` → `@bordom-ai/shared`. `@bordom-ai/database` is currently standalone (only re-exports `PrismaClient`). TS path aliases in `tsconfig.base.json` resolve workspace packages directly to their `src/index.ts`, so no build step is needed for cross-package imports during dev.
 
 **JSON is the source of truth.** The canonical generated artifact is a `GameSpec` (defined in `packages/shared/src/schemas.ts` as a Zod schema). Markdown is *only* a rendered view, produced by `renderGameSpecMarkdown` in the same package. See `docs/decisions/0001-json-source-markdown-render.md`. Never invert this: don't parse Markdown into JSON, don't store Markdown as the canonical record, don't bypass `GameSpecSchema` when constructing a game.
 

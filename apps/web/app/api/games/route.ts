@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { GameSpecSchema } from "@bordon-ai/shared";
+import { GameSpecSchema } from "@bordom-ai/shared";
 import { createGameFromSpec } from "../../../lib/games";
 
 export const dynamic = "force-dynamic";

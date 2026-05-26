@@ -1,4 +1,4 @@
-import { GameSpecSchema, type GameSpec } from "@bordon-ai/shared";
+import { GameSpecSchema, type GameSpec } from "@bordom-ai/shared";
 
 function bytesToBase64Url(bytes: Uint8Array): string {
   let binary = "";

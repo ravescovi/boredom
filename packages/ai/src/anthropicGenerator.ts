@@ -1,5 +1,5 @@
 import type Anthropic from "@anthropic-ai/sdk";
-import { GameSpecSchema } from "@bordon-ai/shared";
+import { GameSpecSchema } from "@bordom-ai/shared";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import type { MockGeneratorInput } from "./mockGenerator";
 import { buildSystemPrompt } from "./prompts";

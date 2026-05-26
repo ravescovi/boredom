@@ -74,7 +74,7 @@ Cap continuous motion to elements with deliberate accent roles (status dot, stic
 
 Three sections inside a single `<main>` with `bg-cream`:
 
-1. **Nav** (new) — left: `bordon.ai` wordmark in display font, hot dot. Right: pill-style "Peek at a game →" link (ink fill).
+1. **Nav** (new) — left: `bordom.ai` wordmark in display font, hot dot. Right: pill-style "Peek at a game →" link (ink fill).
 2. **Hero** — two-column grid (`minmax(0,1fr) 420px`, collapses to single column under 980px). Left column: eyebrow pill, h1, lede, two CTAs, proof-sticker row. Right column: form card.
    - **Headline copy:** `"A brand-new party game. Just for tonight. 🎉"` rendered across three lines. "Just for tonight." wrapped in `<span className="swipe">`; trailing emoji wrapped in `<span className="wink">`.
    - Two radial-gradient blobs (butter + lilac) sit behind the hero via `::before` / `::after` pseudo-elements and run the drift animation.

@@ -7,7 +7,7 @@ export function SiteNav() {
         href="/"
         className="font-display text-[22px] font-extrabold -tracking-[.04em] text-ink"
       >
-        bordon<span className="text-hot">.</span>ai
+        bordom<span className="text-hot">.</span>ai
       </Link>
       <div className="flex items-center gap-3">
         <Link

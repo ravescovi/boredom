@@ -8,13 +8,12 @@ describe("SafetyPromiseModal", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  it("renders the four promises when open", () => {
+  it("renders the three promises when open", () => {
     render(<SafetyPromiseModal open={true} onClose={() => {}} />);
     expect(screen.getByRole("dialog")).toBeDefined();
     expect(screen.getByText("No drinking games.")).toBeDefined();
     expect(screen.getByText("No gambling.")).toBeDefined();
     expect(screen.getByText("No physical risk.")).toBeDefined();
-    expect(screen.getByText("Original only.")).toBeDefined();
   });
 
   it("calls onClose when close button is clicked", () => {

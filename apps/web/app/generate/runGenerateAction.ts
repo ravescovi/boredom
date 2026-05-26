@@ -1,11 +1,11 @@
-import type { GameSpec } from "@bordon-ai/shared";
+import type { GameSpec } from "@bordom-ai/shared";
 import {
   generateGame,
   FINAL_GAME_PROMPT_VERSION,
   SAFETY_POLICY_VERSION,
   type GameProvider,
   type GenerateResult
-} from "@bordon-ai/ai";
+} from "@bordom-ai/ai";
 
 export type RejectionCategory =
   | "drinking_or_intoxication"

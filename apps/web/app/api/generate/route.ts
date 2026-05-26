@@ -1,4 +1,4 @@
-import { mockGenerateGame, selectStreamingClient, streamGame, type StreamEvent } from "@bordon-ai/ai";
+import { mockGenerateGame, selectStreamingClient, streamGame, type StreamEvent } from "@bordom-ai/ai";
 import {
   categorizeReason,
   dedupe,

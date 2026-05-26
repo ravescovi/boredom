@@ -1,5 +1,5 @@
-import type { GameSpec, PlayerConfig } from "@bordon-ai/shared";
-import { GameSpecSchema } from "@bordon-ai/shared";
+import type { GameSpec, PlayerConfig } from "@bordom-ai/shared";
+import { GameSpecSchema } from "@bordom-ai/shared";
 
 export type MockGeneratorInput = {
   playerCount: PlayerConfig;
@@ -15,7 +15,7 @@ export function mockGenerateGame(input: MockGeneratorInput): GameSpec {
     id: "mock_context_mosaic",
     title: "Context Mosaic",
     summary:
-      "A safe, original game where players turn details from the current setting into clues and shared guesses.",
+      "Players turn details from the current setting into clues and shared guesses.",
     playerCount: input.playerCount,
     durationMinutes: 20,
     ageRating: "8+",
@@ -23,11 +23,11 @@ export function mockGenerateGame(input: MockGeneratorInput): GameSpec {
     setup: [
       `Use this context: ${input.circumstances}`,
       "Give each player a writing surface or shared note area.",
-      "Agree that all clues must be original, safe, and non-commercial."
+      "Decide who goes first — youngest player starts, or roll to pick."
     ],
     rules: [
-      "Each player writes one original clue inspired by the current setting.",
-      "Clues may not reference protected franchises, existing games, risky actions, intoxication, or stakes.",
+      "Each player writes one clue inspired by something in the current setting.",
+      "Clues should be short — a word, phrase, or single sentence.",
       "Players guess which detail inspired each clue."
     ],
     turnStructure: [
@@ -51,7 +51,7 @@ export function mockGenerateGame(input: MockGeneratorInput): GameSpec {
       "If players tie, they share the win."
     ],
     variants: [
-      `For a ${input.gameType} feel, require clues to fit that tone while remaining safe and original.`
+      `For a ${input.gameType} feel, require clues to fit that tone.`
     ],
     safetyNotes: [
       "This game uses seated or stationary discussion and writing only.",

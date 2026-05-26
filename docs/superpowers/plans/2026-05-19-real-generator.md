@@ -4,7 +4,7 @@
 
 **Goal:** Replace the hardcoded `mockGenerateGame` stub with an Anthropic-backed generator that turns form inputs into a validated, novel `GameSpec` and renders it via a Server Action on `/generate`.
 
-**Architecture:** A `GameProvider = (input, feedback?) => Promise<unknown>` seam in `@bordon-ai/ai` with two implementations (Anthropic via tool use, mock for fallback/tests). An orchestrator in `generateGame.ts` runs provider → validator → retry-once-on-rejection. A Next.js Server Action in `apps/web` parses the form, delegates to a pure `runGenerateAction` helper, and returns a discriminated `ActionState` consumed by `useActionState` in the rewritten `/generate` page. The deleted `/games/preview` route is replaced by an in-page result view; the homepage retargets to `/generate`.
+**Architecture:** A `GameProvider = (input, feedback?) => Promise<unknown>` seam in `@bordom-ai/ai` with two implementations (Anthropic via tool use, mock for fallback/tests). An orchestrator in `generateGame.ts` runs provider → validator → retry-once-on-rejection. A Next.js Server Action in `apps/web` parses the form, delegates to a pure `runGenerateAction` helper, and returns a discriminated `ActionState` consumed by `useActionState` in the rewritten `/generate` page. The deleted `/games/preview` route is replaced by an in-page result view; the homepage retargets to `/generate`.
 
 **Tech Stack:** TypeScript, Zod, Vitest, Next.js 15 App Router, React 19 (`useActionState`), `@anthropic-ai/sdk`, `zod-to-json-schema`.
 
@@ -63,7 +63,7 @@ Edit `packages/ai/package.json` so the `dependencies` block reads:
 ```json
 "dependencies": {
   "@anthropic-ai/sdk": "^0.32.0",
-  "@bordon-ai/shared": "workspace:*",
+  "@bordom-ai/shared": "workspace:*",
   "zod": "^3.24.1",
   "zod-to-json-schema": "^3.24.1"
 }
@@ -84,7 +84,7 @@ Expected: pnpm reports new packages added to `packages/ai`. No errors.
 - [ ] **Step 3: Sanity check — typecheck still passes**
 
 ```bash
-pnpm --filter @bordon-ai/ai typecheck
+pnpm --filter @bordom-ai/ai typecheck
 ```
 
 Expected: PASS, no output beyond `tsc --noEmit`.
@@ -145,7 +145,7 @@ describe("buildSystemPrompt", () => {
 - [ ] **Step 2: Run the test to verify it fails**
 
 ```bash
-pnpm --filter @bordon-ai/ai test -- tests/prompts.test.ts
+pnpm --filter @bordom-ai/ai test -- tests/prompts.test.ts
 ```
 
 Expected: FAIL — `FINAL_GAME_PROMPT_VERSION` is still `final-game-v0.1.0` and `buildSystemPrompt` is not exported.
@@ -190,7 +190,7 @@ export function buildSystemPrompt(): string {
 - [ ] **Step 4: Run the test to verify it passes**
 
 ```bash
-pnpm --filter @bordon-ai/ai test -- tests/prompts.test.ts
+pnpm --filter @bordom-ai/ai test -- tests/prompts.test.ts
 ```
 
 Expected: PASS, 3 tests green.
@@ -198,7 +198,7 @@ Expected: PASS, 3 tests green.
 - [ ] **Step 5: Run the rest of the ai package's tests to confirm nothing else broke**
 
 ```bash
-pnpm --filter @bordon-ai/ai test
+pnpm --filter @bordom-ai/ai test
 ```
 
 Expected: PASS, all tests green. (Existing tests don't import the dropped `finalGameGenerationPromptTemplate`.)
@@ -225,7 +225,7 @@ Create `packages/ai/tests/mockProvider.test.ts`:
 
 ```ts
 import { describe, expect, it } from "vitest";
-import { GameSpecSchema } from "@bordon-ai/shared";
+import { GameSpecSchema } from "@bordom-ai/shared";
 import { mockProvider } from "../src/mockProvider";
 
 const input = {
@@ -252,7 +252,7 @@ describe("mockProvider", () => {
 - [ ] **Step 2: Run the test to verify it fails**
 
 ```bash
-pnpm --filter @bordon-ai/ai test -- tests/mockProvider.test.ts
+pnpm --filter @bordom-ai/ai test -- tests/mockProvider.test.ts
 ```
 
 Expected: FAIL — module `../src/mockProvider` does not exist.
@@ -262,7 +262,7 @@ Expected: FAIL — module `../src/mockProvider` does not exist.
 Create `packages/ai/src/generateGame.ts` with **types only** for now (orchestrator logic is Task 4):
 
 ```ts
-import type { GameSpec } from "@bordon-ai/shared";
+import type { GameSpec } from "@bordom-ai/shared";
 import type { MockGeneratorInput } from "./mockGenerator";
 
 export type GameProvider = (
@@ -305,7 +305,7 @@ export const mockProvider: GameProvider = async (input) => {
 - [ ] **Step 5: Run the test to verify it passes**
 
 ```bash
-pnpm --filter @bordon-ai/ai test -- tests/mockProvider.test.ts
+pnpm --filter @bordom-ai/ai test -- tests/mockProvider.test.ts
 ```
 
 Expected: PASS, 2 tests green.
@@ -413,7 +413,7 @@ describe("generateGame", () => {
 - [ ] **Step 2: Run the test to verify it fails**
 
 ```bash
-pnpm --filter @bordon-ai/ai test -- tests/generateGame.test.ts
+pnpm --filter @bordom-ai/ai test -- tests/generateGame.test.ts
 ```
 
 Expected: FAIL — `generateGame` not exported.
@@ -423,7 +423,7 @@ Expected: FAIL — `generateGame` not exported.
 Replace `packages/ai/src/generateGame.ts` with:
 
 ```ts
-import type { GameSpec } from "@bordon-ai/shared";
+import type { GameSpec } from "@bordom-ai/shared";
 import type { MockGeneratorInput } from "./mockGenerator";
 import { SAFETY_POLICY_VERSION } from "./policies";
 import { FINAL_GAME_PROMPT_VERSION } from "./prompts";
@@ -495,7 +495,7 @@ function errorMessage(err: unknown): string {
 - [ ] **Step 4: Run the test to verify it passes**
 
 ```bash
-pnpm --filter @bordon-ai/ai test -- tests/generateGame.test.ts
+pnpm --filter @bordom-ai/ai test -- tests/generateGame.test.ts
 ```
 
 Expected: PASS, 4 tests green.
@@ -626,7 +626,7 @@ describe("createAnthropicProvider", () => {
 - [ ] **Step 2: Run the test to verify it fails**
 
 ```bash
-pnpm --filter @bordon-ai/ai test -- tests/anthropicGenerator.test.ts
+pnpm --filter @bordom-ai/ai test -- tests/anthropicGenerator.test.ts
 ```
 
 Expected: FAIL — module does not exist.
@@ -637,7 +637,7 @@ Create `packages/ai/src/anthropicGenerator.ts`:
 
 ```ts
 import type Anthropic from "@anthropic-ai/sdk";
-import { GameSpecSchema } from "@bordon-ai/shared";
+import { GameSpecSchema } from "@bordom-ai/shared";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import type { MockGeneratorInput } from "./mockGenerator";
 import { buildSystemPrompt } from "./prompts";
@@ -738,7 +738,7 @@ export function createAnthropicProvider(
 - [ ] **Step 4: Run the test to verify it passes**
 
 ```bash
-pnpm --filter @bordon-ai/ai test -- tests/anthropicGenerator.test.ts
+pnpm --filter @bordom-ai/ai test -- tests/anthropicGenerator.test.ts
 ```
 
 Expected: PASS, 5 tests green.
@@ -807,7 +807,7 @@ describe("selectProvider", () => {
 - [ ] **Step 2: Run the test to verify it fails**
 
 ```bash
-pnpm --filter @bordon-ai/ai test -- tests/providerSelector.test.ts
+pnpm --filter @bordom-ai/ai test -- tests/providerSelector.test.ts
 ```
 
 Expected: FAIL — module does not exist.
@@ -848,7 +848,7 @@ export function selectProvider(env: ProviderEnv): GameProvider {
 - [ ] **Step 4: Run the test to verify it passes**
 
 ```bash
-pnpm --filter @bordon-ai/ai test -- tests/providerSelector.test.ts
+pnpm --filter @bordom-ai/ai test -- tests/providerSelector.test.ts
 ```
 
 Expected: PASS, 3 tests green.
@@ -885,7 +885,7 @@ export * from "./validator";
 - [ ] **Step 2: Run the entire ai package test suite**
 
 ```bash
-pnpm --filter @bordon-ai/ai test
+pnpm --filter @bordom-ai/ai test
 ```
 
 Expected: PASS — all tests green. (Should include `generateGame`, `mockProvider`, `anthropicGenerator`, `providerSelector`, `prompts`, `mockGenerator`, `validator`.)
@@ -917,7 +917,7 @@ git commit -m "chore(ai): export new generator modules from package entrypoint"
 The component is JSX lifted from `apps/web/app/games/preview/page.tsx` (the rendering portion only). Create `apps/web/components/GeneratedGameView.tsx`:
 
 ```tsx
-import type { GameSpec } from "@bordon-ai/shared";
+import type { GameSpec } from "@bordom-ai/shared";
 
 type Props = {
   game: GameSpec;
@@ -1012,7 +1012,7 @@ export function GeneratedGameView({ game }: Props) {
 - [ ] **Step 2: Typecheck**
 
 ```bash
-pnpm --filter @bordon-ai/web typecheck
+pnpm --filter @bordom-ai/web typecheck
 ```
 
 Expected: PASS.
@@ -1123,7 +1123,7 @@ export function GenerationErrorView({ variant, categories = [], message, onRetry
 - [ ] **Step 3: Typecheck**
 
 ```bash
-pnpm --filter @bordon-ai/web typecheck
+pnpm --filter @bordom-ai/web typecheck
 ```
 
 Expected: PASS.
@@ -1149,8 +1149,8 @@ Create `apps/web/app/generate/__tests__/runGenerateAction.test.ts`:
 
 ```ts
 import { describe, expect, it, vi } from "vitest";
-import { mockGenerateGame } from "@bordon-ai/ai";
-import type { GameProvider } from "@bordon-ai/ai";
+import { mockGenerateGame } from "@bordom-ai/ai";
+import type { GameProvider } from "@bordom-ai/ai";
 import { runGenerateAction } from "../runGenerateAction";
 
 const baseInput = {
@@ -1268,7 +1268,7 @@ describe("runGenerateAction", () => {
 - [ ] **Step 2: Run the test to verify it fails**
 
 ```bash
-pnpm --filter @bordon-ai/web test -- app/generate/__tests__/runGenerateAction.test.ts
+pnpm --filter @bordom-ai/web test -- app/generate/__tests__/runGenerateAction.test.ts
 ```
 
 Expected: FAIL — module does not exist.
@@ -1278,14 +1278,14 @@ Expected: FAIL — module does not exist.
 Create `apps/web/app/generate/runGenerateAction.ts`:
 
 ```ts
-import type { GameSpec } from "@bordon-ai/shared";
+import type { GameSpec } from "@bordom-ai/shared";
 import {
   generateGame,
   FINAL_GAME_PROMPT_VERSION,
   SAFETY_POLICY_VERSION,
   type GameProvider,
   type GenerateResult
-} from "@bordon-ai/ai";
+} from "@bordom-ai/ai";
 
 export type RejectionCategory =
   | "drinking_or_intoxication"
@@ -1448,7 +1448,7 @@ export async function runGenerateAction(
 - [ ] **Step 4: Run the test to verify it passes**
 
 ```bash
-pnpm --filter @bordon-ai/web test -- app/generate/__tests__/runGenerateAction.test.ts
+pnpm --filter @bordom-ai/web test -- app/generate/__tests__/runGenerateAction.test.ts
 ```
 
 Expected: PASS, 6 tests green.
@@ -1472,7 +1472,7 @@ git commit -m "feat(web): add runGenerateAction pure helper with reason categori
 ```ts
 "use server";
 
-import { selectProvider } from "@bordon-ai/ai";
+import { selectProvider } from "@bordom-ai/ai";
 import { runGenerateAction, type ActionState } from "./runGenerateAction";
 
 const provider = selectProvider(process.env);
@@ -1488,7 +1488,7 @@ export async function generateGameAction(
 - [ ] **Step 2: Typecheck**
 
 ```bash
-pnpm --filter @bordon-ai/web typecheck
+pnpm --filter @bordom-ai/web typecheck
 ```
 
 Expected: PASS.
@@ -1562,7 +1562,7 @@ export default function GeneratePage() {
   );
 }
 
-function ResultView({ game }: { game: import("@bordon-ai/shared").GameSpec }) {
+function ResultView({ game }: { game: import("@bordom-ai/shared").GameSpec }) {
   return (
     <div className="grid gap-6">
       <GeneratedGameView game={game} />
@@ -1631,7 +1631,7 @@ function FormView({
 - [ ] **Step 2: Typecheck**
 
 ```bash
-pnpm --filter @bordon-ai/web typecheck
+pnpm --filter @bordom-ai/web typecheck
 ```
 
 Expected: PASS.
@@ -1707,8 +1707,8 @@ The quick-pick form sends: `minPlayers`, `maxPlayers`, `circumstances`, `gameTyp
 - [ ] **Step 4: Typecheck + lint**
 
 ```bash
-pnpm --filter @bordon-ai/web typecheck
-pnpm --filter @bordon-ai/web lint
+pnpm --filter @bordom-ai/web typecheck
+pnpm --filter @bordom-ai/web lint
 ```
 
 Expected: both PASS.

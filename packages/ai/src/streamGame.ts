@@ -1,5 +1,5 @@
 import type Anthropic from "@anthropic-ai/sdk";
-import { GameSpecSchema, type GameSpec } from "@bordon-ai/shared";
+import { GameSpecSchema, type GameSpec } from "@bordom-ai/shared";
 import { parse as parsePartial, Allow } from "partial-json";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import type { MockGeneratorInput } from "./mockGenerator";

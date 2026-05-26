@@ -1,4 +1,4 @@
-import type { GameSpec } from "@bordon-ai/shared";
+import type { GameSpec } from "@bordom-ai/shared";
 import type { MockGeneratorInput } from "./mockGenerator";
 import { SAFETY_POLICY_VERSION } from "./policies";
 import { FINAL_GAME_PROMPT_VERSION } from "./prompts";

@@ -6,7 +6,7 @@ import {
 } from "./policies";
 
 export const CLARIFICATION_PROMPT_VERSION = "clarification-v0.1.0";
-export const FINAL_GAME_PROMPT_VERSION = "final-game-v0.3.0";
+export const FINAL_GAME_PROMPT_VERSION = "final-game-v0.4.0";
 
 export const clarificationPromptTemplate = `
 You are Bordon.ai, a safe game design assistant. Ask concise clarification questions only
@@ -33,6 +33,7 @@ export function buildSystemPrompt(): string {
     "- safetyNotes: 1-2 entries",
     "Each string should be one sentence. No nested explanations. Inline **bold** is allowed sparingly for emphasis.",
     "Generate one original, safe, non-commercial game tailored to the user's structured input.",
-    "Reject any temptation to imitate existing franchises, characters, or distinctive game names."
+    "Reject any temptation to imitate existing franchises, characters, or distinctive game names.",
+    "IMPORTANT: Do NOT include any rules, setup steps, or instructions telling players their contributions must be 'original', 'non-commercial', 'safe', or free of IP references. Those constraints are covered by platform policy and must not appear in the player-facing game text. Focus only on how to play."
   ].join("\n\n");
 }

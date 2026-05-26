@@ -1,5 +1,5 @@
 {
-  "name": "@bordon-ai/web",
+  "name": "@bordom-ai/web",
   "private": true,
   "version": "0.0.0",
   "scripts": {
@@ -10,9 +10,9 @@
     "typecheck": "prisma generate --schema=../../packages/database/prisma/schema.prisma && tsc --noEmit"
   },
   "dependencies": {
-    "@bordon-ai/ai": "workspace:*",
-    "@bordon-ai/database": "workspace:*",
-    "@bordon-ai/shared": "workspace:*",
+    "@bordom-ai/ai": "workspace:*",
+    "@bordom-ai/database": "workspace:*",
+    "@bordom-ai/shared": "workspace:*",
     "@prisma/client": "^6.1.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
