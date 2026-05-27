@@ -248,7 +248,7 @@ function DoneScreen({
           Round {round} complete!
         </h2>
         <p className="mt-2 text-[15px] leading-[1.5] text-ink/65">
-          Keep going or wrap up — here's how to decide the winner.
+          Keep going or wrap up — here&apos;s how to decide the winner.
         </p>
       </div>
       <div

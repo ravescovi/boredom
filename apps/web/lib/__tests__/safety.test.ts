@@ -2,12 +2,11 @@ import { describe, expect, it } from "vitest";
 import { safetyPromises } from "../safety";
 
 describe("safetyPromises", () => {
-  it("exposes the four hard rules in order", () => {
+  it("exposes the three player-facing hard rules in order", () => {
     expect(safetyPromises.map((p) => p.id)).toEqual([
       "drinking",
       "gambling",
-      "physical",
-      "original"
+      "physical"
     ]);
   });
 
