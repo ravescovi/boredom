@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { CLASSIC_GAMES } from "../lib/classics";
+import { CARD_GAME_CATEGORIES } from "../lib/cardGames";
+import { CardGameCategories } from "../components/CardGameCategories";
 
 const circumstances = [
   {
@@ -222,10 +224,10 @@ export default function HomePage() {
           </div>
 
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {CLASSIC_GAMES.map((classic) => (
+            {CLASSIC_GAMES.filter((c) => c.shortId !== "CRZY8S").map((classic) => (
               <div
                 key={classic.shortId}
-                className="group rounded-[18px] border-[3px] border-ink bg-cream p-5 shadow-brut-lg"
+                className="group flex flex-col rounded-[18px] border-[3px] border-ink bg-cream p-5 shadow-brut-lg"
               >
                 <div className="flex items-center justify-between">
                   <span className="text-[32px]" aria-hidden="true">
@@ -241,7 +243,7 @@ export default function HomePage() {
                   </h3>
                 </Link>
                 <p className="mt-2 text-[14px] leading-[1.5] text-ink/80">{classic.blurb}</p>
-                <div className="mt-3 flex items-center justify-between gap-2">
+                <div className="mt-auto flex items-center justify-between gap-2 pt-3">
                   <div className="flex flex-wrap gap-1.5 text-[11px] font-bold uppercase tracking-[.05em]">
                     <span className="rounded-full border-2 border-ink bg-sky px-2 py-0.5">
                       {classic.spec.playerCount.min}–{classic.spec.playerCount.max} players
@@ -260,6 +262,35 @@ export default function HomePage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── Card Games Section ── */}
+      <section className="border-t-[3px] border-ink bg-cream py-16">
+        <div className="mx-auto max-w-[1180px] px-6">
+          {/* Section header */}
+          <div className="mb-12">
+            <span className="inline-flex items-center gap-2 rounded-full border-2 border-ink bg-mint px-3 py-1.5 text-[12px] font-bold uppercase tracking-[.08em] shadow-brut-sm">
+              🃏 Card Games
+            </span>
+            <h2 className="mt-4 font-display text-[clamp(36px,4.5vw,56px)] font-extrabold leading-[.95] -tracking-[.03em]">
+              One deck.{" "}
+              <span
+                className="inline-block border-[3px] border-ink bg-hot px-3 shadow-brut"
+                style={{ animation: "brut-swipe-pop 3.4s ease-in-out infinite" }}
+              >
+                Infinite chaos.
+              </span>
+              <br />
+              Deal me in.
+            </h2>
+            <p className="mt-3 max-w-[520px] text-[16px] leading-[1.55] text-ink/80">
+              Six categories. Twenty-two games. All you need is a deck of cards and the right crowd.
+            </p>
+          </div>
+
+          {/* Categories — expandable */}
+          <CardGameCategories categories={CARD_GAME_CATEGORIES} />
         </div>
       </section>
 

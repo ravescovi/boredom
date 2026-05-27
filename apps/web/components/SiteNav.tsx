@@ -11,6 +11,12 @@ export function SiteNav() {
       </Link>
       <div className="flex items-center gap-3">
         <Link
+          href="/draw"
+          className="rounded-full border-2 border-ink bg-paper px-4 py-2.5 text-[13px] font-bold text-ink shadow-brut-sm"
+        >
+          🎨 Draw
+        </Link>
+        <Link
           href="/scoreboard"
           className="rounded-full border-2 border-ink bg-paper px-4 py-2.5 text-[13px] font-bold text-ink shadow-brut-sm"
         >

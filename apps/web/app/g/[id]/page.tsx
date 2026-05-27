@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { GameSpec } from "@bordom-ai/shared";
 import { SharedGameView } from "../../../components/SharedGameView";
 import { findClassic } from "../../../lib/classics";
+import { findCardGame } from "../../../lib/cardGames";
 import { ensureClassicSeeded, findGameByShortId } from "../../../lib/games";
 import { decodeGameFromUrl } from "../../../lib/shareUrl";
 import { isShortId } from "../../../lib/shortId";
@@ -30,7 +31,7 @@ async function resolve(id: string): Promise<Resolved | null> {
           isClassic: existing.isClassic
         };
       }
-      const classic = findClassic(upper);
+      const classic = findClassic(upper) ?? findCardGame(upper);
       if (classic) {
         const seeded = await ensureClassicSeeded(classic);
         return {
@@ -42,8 +43,8 @@ async function resolve(id: string): Promise<Resolved | null> {
         };
       }
     } catch {
-      // DB unavailable — classics still resolve from static data.
-      const classic = findClassic(upper);
+      // DB unavailable — classics and card games still resolve from static data.
+      const classic = findClassic(upper) ?? findCardGame(upper);
       if (classic) {
         return {
           kind: "legacy",
