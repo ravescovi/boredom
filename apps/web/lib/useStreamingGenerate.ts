@@ -1,6 +1,6 @@
 "use client";
 
-import type { GameSpec } from "@bordon-ai/shared";
+import type { GameSpec } from "@bordom-ai/shared";
 import { useCallback, useRef, useState } from "react";
 
 export type RejectionCategory =

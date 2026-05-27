@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mockGenerateGame } from "@bordon-ai/ai";
+import { mockGenerateGame } from "@bordom-ai/ai";
 import { decodeGameFromUrl, encodeGameForUrl } from "../shareUrl";
 
 const sample = mockGenerateGame({

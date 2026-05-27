@@ -5,8 +5,8 @@ import {
   selectStreamingClient,
   streamGame,
   type StreamEvent
-} from "@bordon-ai/ai";
-import { GameSpecSchema } from "@bordon-ai/shared";
+} from "@bordom-ai/ai";
+import { GameSpecSchema } from "@bordom-ai/shared";
 import {
   categorizeReason,
   dedupe,

@@ -1,6 +1,6 @@
 "use server";
 
-import { selectProvider } from "@bordon-ai/ai";
+import { selectProvider } from "@bordom-ai/ai";
 import { runGenerateAction, type ActionState } from "./runGenerateAction";
 
 const provider = selectProvider(process.env);

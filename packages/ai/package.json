@@ -1,5 +1,5 @@
 {
-  "name": "@bordon-ai/ai",
+  "name": "@bordom-ai/ai",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",
-    "@bordon-ai/shared": "workspace:*",
+    "@bordom-ai/shared": "workspace:*",
     "partial-json": "^0.1.7",
     "zod": "^3.24.1",
     "zod-to-json-schema": "^3.24.1"

@@ -259,7 +259,7 @@ The "Peek at a game" link's prior meaning (render a static demo of the mock) no 
 - `@anthropic-ai/sdk` (runtime, `packages/ai`)
 - `zod-to-json-schema` (runtime, `packages/ai`)
 
-No other new dependencies. `@bordon-ai/ai` already a workspace dep of `apps/web`, so propagation is automatic.
+No other new dependencies. `@bordom-ai/ai` already a workspace dep of `apps/web`, so propagation is automatic.
 
 ## Out of scope (explicit non-goals for this round)
 

@@ -1,4 +1,4 @@
-import { GameSpecSchema, type GameSpec } from "@bordon-ai/shared";
+import { GameSpecSchema, type GameSpec } from "@bordom-ai/shared";
 import { unsafeTerms } from "./policies";
 
 export type GameSpecValidationResult =

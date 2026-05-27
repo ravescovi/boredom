@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { mockGenerateGame } from "@bordon-ai/ai";
+import { mockGenerateGame } from "@bordom-ai/ai";
 
 // Mock the persistence layer so the route never touches Prisma/the DB. This is
 // the seam the generation cache reads through.

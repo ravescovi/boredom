@@ -1,5 +1,5 @@
 export type SafetyPromise = {
-  id: "drinking" | "gambling" | "physical" | "original";
+  id: "drinking" | "gambling" | "physical";
   emoji: string;
   title: string;
   note: string;
@@ -23,11 +23,5 @@ export const safetyPromises: readonly SafetyPromise[] = [
     emoji: "🛋️",
     title: "No physical risk.",
     note: "Designed for safe, seated, cozy play."
-  },
-  {
-    id: "original",
-    emoji: "✨",
-    title: "Original only.",
-    note: "No franchise copycats. No commercialization."
   }
 ];

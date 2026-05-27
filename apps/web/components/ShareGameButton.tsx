@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { GameSpec } from "@bordon-ai/shared";
+import type { GameSpec } from "@bordom-ai/shared";
 import { encodeGameForUrl } from "../lib/shareUrl";
 
 type Props = {

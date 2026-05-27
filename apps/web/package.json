@@ -1,5 +1,5 @@
 {
-  "name": "@bordon-ai/web",
+  "name": "@bordom-ai/web",
   "private": true,
   "version": "0.0.0",
   "scripts": {
@@ -10,9 +10,9 @@
     "typecheck": "prisma generate --config=../../packages/database/prisma.config.ts && tsc --noEmit"
   },
   "dependencies": {
-    "@bordon-ai/ai": "workspace:*",
-    "@bordon-ai/database": "workspace:*",
-    "@bordon-ai/shared": "workspace:*",
+    "@bordom-ai/ai": "workspace:*",
+    "@bordom-ai/database": "workspace:*",
+    "@bordom-ai/shared": "workspace:*",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@sentry/nextjs": "^10.53.1",

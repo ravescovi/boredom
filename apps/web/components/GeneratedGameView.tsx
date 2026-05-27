@@ -1,9 +1,10 @@
-import type { GameSpec } from "@bordon-ai/shared";
+import type { GameSpec } from "@bordom-ai/shared";
 import { renderInlineMarkdown } from "../lib/inlineMarkdown";
 
 type Props = {
   game: GameSpec | Partial<GameSpec>;
   streaming?: boolean;
+  onStartGame?: () => void;
 };
 
 function arr(value: unknown): string[] {
@@ -95,7 +96,7 @@ function Pill({
   );
 }
 
-export function GeneratedGameView({ game, streaming = false }: Props) {
+export function GeneratedGameView({ game, streaming = false, onStartGame }: Props) {
   const requiredMaterials = arr(game.requiredMaterials);
   const setup = arr(game.setup);
   const rules = arr(game.rules);
@@ -128,14 +129,25 @@ export function GeneratedGameView({ game, streaming = false }: Props) {
         )}
 
         {(game.playerCount || game.durationMinutes || game.ageRating) && (
-          <div className="flex flex-wrap gap-2">
-            {game.playerCount && (
-              <Pill tone="sky">
-                👥 {game.playerCount.min}-{game.playerCount.max} players
-              </Pill>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap gap-2">
+              {game.playerCount && (
+                <Pill tone="sky">
+                  👥 {game.playerCount.min}-{game.playerCount.max} players
+                </Pill>
+              )}
+              {game.durationMinutes && <Pill tone="butter">⏱️ {game.durationMinutes} min</Pill>}
+              {game.ageRating && <Pill tone="mint">🌱 Ages {game.ageRating}</Pill>}
+            </div>
+            {onStartGame && (
+              <button
+                type="button"
+                onClick={onStartGame}
+                className="shrink-0 rounded-lg border-2 border-ink bg-mint px-3.5 py-1.5 font-display text-[13px] font-extrabold shadow-brut-sm transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
+              >
+                Start game 🎮
+              </button>
             )}
-            {game.durationMinutes && <Pill tone="butter">⏱️ {game.durationMinutes} min</Pill>}
-            {game.ageRating && <Pill tone="mint">🌱 Ages {game.ageRating}</Pill>}
           </div>
         )}
       </header>

@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@bordon-ai/ai", "@bordon-ai/shared"]
+  transpilePackages: ["@bordom-ai/ai", "@bordom-ai/shared"]
 };
 
 export default withSentryConfig(nextConfig, {

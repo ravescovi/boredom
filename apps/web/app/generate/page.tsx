@@ -1,6 +1,6 @@
 "use client";
 
-import type { GameSpec } from "@bordon-ai/shared";
+import type { GameSpec } from "@bordom-ai/shared";
 import { useEffect, useRef, useState } from "react";
 import { AvailablePropsSelector } from "../../components/AvailablePropsSelector";
 import { CircumstancesInput } from "../../components/CircumstancesInput";
@@ -8,6 +8,7 @@ import { GameTypeSelector } from "../../components/GameTypeSelector";
 import { GeneratedGameView } from "../../components/GeneratedGameView";
 import { GenerationErrorView } from "../../components/GenerationErrorView";
 import { PlayerCountInput } from "../../components/PlayerCountInput";
+import { GameRunner } from "../../components/GameRunner";
 import { ShareGameButton } from "../../components/ShareGameButton";
 import { StarButton } from "../../components/StarButton";
 import { useStreamingGenerate, type StreamingState } from "../../lib/useStreamingGenerate";
@@ -88,6 +89,7 @@ function ResultView({
   inputHash?: string;
 }) {
   const [shortId, setShortId] = useState<string | null>(servedShortId ?? null);
+  const [showRunner, setShowRunner] = useState(false);
 
   useEffect(() => {
     // Cache hit: the served game is already stored, so reuse its short ID rather
@@ -118,8 +120,15 @@ function ResultView({
 
   return (
     <div className="grid gap-6">
-      <GeneratedGameView game={game} />
+      <GeneratedGameView game={game} onStartGame={() => setShowRunner(true)} />
       <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={() => setShowRunner(true)}
+          className="rounded-xl border-[3px] border-ink bg-mint px-5 py-3.5 font-display text-[18px] font-extrabold -tracking-[.01em] shadow-brut-lg transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_#1A1A1A]"
+        >
+          Start game 🎮
+        </button>
         <button
           type="button"
           onClick={() => window.location.assign("/generate")}
@@ -140,6 +149,7 @@ function ResultView({
         {shortId && <StarButton shortId={shortId} initialScore={0} />}
         <ShareGameButton game={game} initialShortId={shortId ?? undefined} />
       </div>
+      {showRunner && <GameRunner game={game} onClose={() => setShowRunner(false)} />}
     </div>
   );
 }

@@ -89,7 +89,7 @@ export default config;
 
 - [ ] **Step 3: Run typecheck**
 
-Run: `pnpm --filter @bordon-ai/web typecheck`
+Run: `pnpm --filter @bordom-ai/web typecheck`
 Expected: PASS (no TS errors)
 
 - [ ] **Step 4: Commit**
@@ -147,7 +147,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 - [ ] **Step 3: Run typecheck**
 
-Run: `pnpm --filter @bordon-ai/web typecheck`
+Run: `pnpm --filter @bordom-ai/web typecheck`
 Expected: PASS
 
 - [ ] **Step 4: Commit**
@@ -243,7 +243,7 @@ Run: `cat apps/web/app/globals.css`
 
 - [ ] **Step 3: Start the dev server to make sure CSS still compiles**
 
-Run: `pnpm --filter @bordon-ai/web dev` in the background, then `curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000/`
+Run: `pnpm --filter @bordom-ai/web dev` in the background, then `curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000/`
 Expected: `200`
 
 (Leave the dev server running for the rest of the plan; it hot-reloads on subsequent changes.)
@@ -292,7 +292,7 @@ describe("safetyPromises", () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm --filter @bordon-ai/web test -- lib/__tests__/safety.test.ts`
+Run: `pnpm --filter @bordom-ai/web test -- lib/__tests__/safety.test.ts`
 Expected: FAIL (module not found)
 
 - [ ] **Step 3: Create the module**
@@ -336,7 +336,7 @@ export const safetyPromises: readonly SafetyPromise[] = [
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm --filter @bordon-ai/web test -- lib/__tests__/safety.test.ts`
+Run: `pnpm --filter @bordom-ai/web test -- lib/__tests__/safety.test.ts`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -417,13 +417,13 @@ export default defineConfig({
 });
 ```
 
-If `@testing-library/react` is already a devDependency (confirmed via `cat apps/web/package.json`), no install is needed. Otherwise: `pnpm --filter @bordon-ai/web add -D @testing-library/react jsdom`.
+If `@testing-library/react` is already a devDependency (confirmed via `cat apps/web/package.json`), no install is needed. Otherwise: `pnpm --filter @bordom-ai/web add -D @testing-library/react jsdom`.
 
-Also add `jsdom` if missing: `pnpm --filter @bordon-ai/web add -D jsdom`.
+Also add `jsdom` if missing: `pnpm --filter @bordom-ai/web add -D jsdom`.
 
 - [ ] **Step 3: Run test to verify it fails**
 
-Run: `pnpm --filter @bordon-ai/web test -- components/__tests__/SafetyPromiseModal.test.tsx`
+Run: `pnpm --filter @bordom-ai/web test -- components/__tests__/SafetyPromiseModal.test.tsx`
 Expected: FAIL (module not found)
 
 - [ ] **Step 4: Create the component**
@@ -534,7 +534,7 @@ export function SafetyPromiseModal({ open, onClose }: Props) {
 
 - [ ] **Step 5: Run test to verify it passes**
 
-Run: `pnpm --filter @bordon-ai/web test -- components/__tests__/SafetyPromiseModal.test.tsx`
+Run: `pnpm --filter @bordom-ai/web test -- components/__tests__/SafetyPromiseModal.test.tsx`
 Expected: PASS (5 tests)
 
 - [ ] **Step 6: Commit**
@@ -579,7 +579,7 @@ export function SiteNav() {
 
 - [ ] **Step 2: Run typecheck**
 
-Run: `pnpm --filter @bordon-ai/web typecheck`
+Run: `pnpm --filter @bordom-ai/web typecheck`
 Expected: PASS
 
 - [ ] **Step 3: Commit**
@@ -626,7 +626,7 @@ export function SiteFooter() {
 
 - [ ] **Step 2: Run typecheck**
 
-Run: `pnpm --filter @bordon-ai/web typecheck`
+Run: `pnpm --filter @bordom-ai/web typecheck`
 Expected: PASS
 
 - [ ] **Step 3: Commit**
@@ -1031,7 +1031,7 @@ If the existing component is a default export, preserve that. Otherwise keep the
 
 - [ ] **Step 3: Run typecheck**
 
-Run: `pnpm --filter @bordon-ai/web typecheck`
+Run: `pnpm --filter @bordom-ai/web typecheck`
 Expected: PASS
 
 - [ ] **Step 4: Commit**
@@ -1107,7 +1107,7 @@ Preserve the export shape used by `generate/page.tsx`.
 
 - [ ] **Step 3: Run typecheck**
 
-Run: `pnpm --filter @bordon-ai/web typecheck`
+Run: `pnpm --filter @bordom-ai/web typecheck`
 Expected: PASS
 
 - [ ] **Step 4: Commit**
@@ -1163,7 +1163,7 @@ Preserve the export shape used by `generate/page.tsx`.
 
 - [ ] **Step 3: Run typecheck**
 
-Run: `pnpm --filter @bordon-ai/web typecheck`
+Run: `pnpm --filter @bordom-ai/web typecheck`
 Expected: PASS
 
 - [ ] **Step 4: Commit**
@@ -1232,7 +1232,7 @@ export function AvailablePropsSelector() {
 
 - [ ] **Step 3: Run typecheck**
 
-Run: `pnpm --filter @bordon-ai/web typecheck`
+Run: `pnpm --filter @bordom-ai/web typecheck`
 Expected: PASS
 
 - [ ] **Step 4: Commit**
@@ -1329,7 +1329,7 @@ git commit -m "feat(web): restyle /generate, drop SafetyConstraintsNotice"
 
 ```tsx
 // apps/web/app/games/preview/page.tsx
-import { mockGenerateGame } from "@bordon-ai/ai";
+import { mockGenerateGame } from "@bordom-ai/ai";
 
 type PreviewSearchParams = Record<string, string | string[] | undefined>;
 
@@ -1506,7 +1506,7 @@ Run: `rm apps/web/components/SafetyConstraintsNotice.tsx`
 
 - [ ] **Step 3: Run typecheck + tests**
 
-Run: `pnpm --filter @bordon-ai/web typecheck && pnpm --filter @bordon-ai/web test`
+Run: `pnpm --filter @bordom-ai/web typecheck && pnpm --filter @bordom-ai/web test`
 Expected: PASS
 
 - [ ] **Step 4: Commit**

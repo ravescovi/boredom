@@ -6,7 +6,7 @@ import { isShortId } from "../../../../../lib/shortId";
 
 export const dynamic = "force-dynamic";
 
-const COOKIE_NAME = "bordon_stars";
+const COOKIE_NAME = "bordom_stars";
 const COOKIE_MAX_AGE_DAYS = 365;
 
 type Params = { params: Promise<{ shortId: string }> };

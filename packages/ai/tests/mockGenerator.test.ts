@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GameSpecSchema } from "@bordon-ai/shared";
+import { GameSpecSchema } from "@bordom-ai/shared";
 import { mockGenerateGame } from "../src";
 
 describe("mockGenerateGame", () => {

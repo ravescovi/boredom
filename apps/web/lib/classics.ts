@@ -1,5 +1,5 @@
-import type { GameSpec } from "@bordon-ai/shared";
-import { GameSpecSchema } from "@bordon-ai/shared";
+import type { GameSpec } from "@bordom-ai/shared";
+import { GameSpecSchema } from "@bordom-ai/shared";
 
 export type ClassicGame = {
   shortId: string;
@@ -131,7 +131,7 @@ const raw: Array<{
       requiredMaterials: ["one small notebook per player", "pens"],
       setup: [
         "Hand each player a small notebook and a pen.",
-        "Everyone writes a short, original phrase on the first page of their own notebook.",
+        "Everyone writes a short phrase on the first page of their own notebook.",
         "Decide a passing direction (clockwise) and agree on a 60-second turn timer."
       ],
       rules: [
@@ -163,8 +163,7 @@ const raw: Array<{
         "Silent mode: no commentary allowed until the final reveal."
       ],
       safetyNotes: [
-        "Keep phrases kind — no jabs at people present or sensitive topics.",
-        "Original phrases only; avoid copyrighted titles or characters."
+        "Keep phrases kind — no jabs at people present or sensitive topics."
       ]
     }
   },
@@ -267,8 +266,66 @@ const raw: Array<{
         "Two-word challenge: draw two slips per turn and use both."
       ],
       safetyNotes: [
-        "Keep the tone kind and inclusive — no targeting players or sensitive topics.",
-        "Original story only; avoid copyrighted characters or worlds."
+        "Keep the tone kind and inclusive — no targeting players or sensitive topics."
+      ]
+    }
+  },
+  {
+    shortId: "CRZY8S",
+    emoji: "🃏",
+    blurb: "Match suit or rank — eights are wild.",
+    spec: {
+      title: "Crazy Eights",
+      summary:
+        "A fast-paced card game where players race to empty their hand by matching the suit or rank of the top card. Eights are wild — play one to call any suit you like.",
+      playerCount: { min: 2, max: 8 },
+      durationMinutes: 20,
+      ageRating: "6+",
+      requiredMaterials: [
+        "one standard 52-card deck (use two decks for 5+ players)"
+      ],
+      setup: [
+        "Shuffle and deal 7 cards to each player (5 each for 5+ players).",
+        "Place remaining cards face-down as the draw pile.",
+        "Flip the top card face-up to start the discard pile — if it lands on an eight, bury it and flip again.",
+        "Decide who goes first; play proceeds clockwise."
+      ],
+      rules: [
+        "On your turn, play a card that matches the top discard's suit or rank — or play an eight at any time.",
+        "When you play an eight, announce the suit the next player must match.",
+        "If you cannot play, draw one card; if the drawn card plays, play it now — otherwise keep it and pass.",
+        "If the draw pile empties, shuffle the discard pile (leaving the top card) and flip it to form a new draw pile."
+      ],
+      turnStructure: [
+        "Active player looks at the top discard card.",
+        "Play a card matching its suit, its rank, or play any eight.",
+        "If playing an eight, call the new suit aloud.",
+        "If unable to play anything, draw one card — play it if possible, otherwise pass."
+      ],
+      gameplayLoop: [
+        "Check the discard.",
+        "Play a match or an eight.",
+        "Call a suit if needed.",
+        "Draw if stuck, then pass."
+      ],
+      scoring: [
+        "First to empty their hand wins the round.",
+        "Remaining players count unplayed cards: eights = 50 pts, face cards = 10 pts, number cards = face value.",
+        "The winner collects the total of all opponents' unplayed card values as points."
+      ],
+      winCondition:
+        "Play until one player reaches 200 points across rounds (or agree on a set number of rounds); highest score wins.",
+      edgeCases: [
+        "If the draw pile runs dry and no one can play, the player with the fewest cards in hand wins the round.",
+        "A player down to one card must say 'Last card!' — if they forget and someone else calls it first, they draw two cards as a penalty."
+      ],
+      variants: [
+        "Draw Two: playing a 2 forces the next player to draw two and lose their turn — they can chain another 2 to deflect it.",
+        "Speed mode: set a 10-second per-turn timer to keep the energy up."
+      ],
+      safetyNotes: [
+        "Seated card game — no physical activity required.",
+        "Keep the banter friendly; no trash talk targeting individual players."
       ]
     }
   },

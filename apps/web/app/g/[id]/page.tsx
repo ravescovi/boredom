@@ -1,10 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { GameSpec } from "@bordon-ai/shared";
-import { GeneratedGameView } from "../../../components/GeneratedGameView";
-import { ShareGameButton } from "../../../components/ShareGameButton";
-import { StarButton } from "../../../components/StarButton";
+import type { GameSpec } from "@bordom-ai/shared";
+import { SharedGameView } from "../../../components/SharedGameView";
 import { findClassic } from "../../../lib/classics";
+import { findCardGame } from "../../../lib/cardGames";
 import { ensureClassicSeeded, findGameByShortId } from "../../../lib/games";
 import { decodeGameFromUrl } from "../../../lib/shareUrl";
 import { isShortId } from "../../../lib/shortId";
@@ -33,7 +31,7 @@ async function resolve(id: string): Promise<Resolved | null> {
           isClassic: existing.isClassic
         };
       }
-      const classic = findClassic(upper);
+      const classic = findClassic(upper) ?? findCardGame(upper);
       if (classic) {
         const seeded = await ensureClassicSeeded(classic);
         return {
@@ -45,8 +43,8 @@ async function resolve(id: string): Promise<Resolved | null> {
         };
       }
     } catch {
-      // DB unavailable — classics still resolve from static data.
-      const classic = findClassic(upper);
+      // DB unavailable — classics and card games still resolve from static data.
+      const classic = findClassic(upper) ?? findCardGame(upper);
       if (classic) {
         return {
           kind: "legacy",
@@ -67,23 +65,11 @@ export default async function SharedGamePage({ params }: Props) {
 
   return (
     <main className="mx-auto max-w-[860px] px-6 py-10">
-      <GeneratedGameView game={resolved.spec} />
-
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Link
-          href="/generate"
-          className="rounded-xl border-[3px] border-ink bg-hot px-5 py-3.5 font-display text-[18px] font-extrabold -tracking-[.01em] shadow-brut-lg transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_#1A1A1A]"
-        >
-          Make your own 🎲
-        </Link>
-        {resolved.kind === "stored" && (
-          <StarButton shortId={resolved.shortId} initialScore={resolved.score} />
-        )}
-        <ShareGameButton
-          game={resolved.spec}
-          initialShortId={resolved.kind === "stored" ? resolved.shortId : undefined}
-        />
-      </div>
+      <SharedGameView
+        spec={resolved.spec}
+        shortId={resolved.kind === "stored" ? resolved.shortId : undefined}
+        score={resolved.kind === "stored" ? resolved.score : undefined}
+      />
     </main>
   );
 }

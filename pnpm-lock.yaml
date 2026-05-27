@@ -38,13 +38,13 @@ importers:
 
   apps/web:
     dependencies:
-      '@bordon-ai/ai':
+      '@bordom-ai/ai':
         specifier: workspace:*
         version: link:../../packages/ai
-      '@bordon-ai/database':
+      '@bordom-ai/database':
         specifier: workspace:*
         version: link:../../packages/database
-      '@bordon-ai/shared':
+      '@bordom-ai/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       '@prisma/adapter-pg':
@@ -114,7 +114,7 @@ importers:
       '@anthropic-ai/sdk':
         specifier: ^0.32.0
         version: 0.32.1
-      '@bordon-ai/shared':
+      '@bordom-ai/shared':
         specifier: workspace:*
         version: link:../shared
       partial-json:

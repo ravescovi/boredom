@@ -1,4 +1,4 @@
-import type { GameSpec } from "@bordon-ai/shared";
+import type { GameSpec } from "@bordom-ai/shared";
 import { prisma, Prisma } from "./db";
 import { CLASSIC_GAMES, type ClassicGame } from "./classics";
 import { generateShortId } from "./shortId";

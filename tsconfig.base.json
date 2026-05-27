@@ -14,9 +14,9 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@bordon-ai/ai": ["packages/ai/src/index.ts"],
-      "@bordon-ai/database": ["packages/database/src/index.ts"],
-      "@bordon-ai/shared": ["packages/shared/src/index.ts"]
+      "@bordom-ai/ai": ["packages/ai/src/index.ts"],
+      "@bordom-ai/database": ["packages/database/src/index.ts"],
+      "@bordom-ai/shared": ["packages/shared/src/index.ts"]
     }
   }
 }
