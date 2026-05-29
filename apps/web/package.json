@@ -10,6 +10,7 @@
     "typecheck": "prisma generate --config=../../packages/database/prisma.config.ts && tsc --noEmit"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.0",
     "@bordom-ai/ai": "workspace:*",
     "@bordom-ai/database": "workspace:*",
     "@bordom-ai/shared": "workspace:*",

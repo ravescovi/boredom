@@ -156,32 +156,42 @@ export function DrawingCanvas() {
 
     const text = WATERMARKS[Math.floor(Math.random() * WATERMARKS.length)];
 
-    ctx.save();
-    ctx.translate(CANVAS_W / 2, CANVAS_H / 2);
-    ctx.rotate(-Math.PI / 9);
-
-    const fontSize = 108;
-    ctx.font = `900 ${fontSize}px Impact, "Arial Black", sans-serif`;
+    const fontSize = 100;
+    ctx.font = `800 ${fontSize}px "Bricolage Grotesque", "Arial Black", sans-serif`;
     ctx.textAlign    = "center";
     ctx.textBaseline = "middle";
 
-    // Thick white halo for legibility.
-    ctx.globalAlpha  = 1;
-    ctx.strokeStyle  = "rgba(255,255,255,0.95)";
-    ctx.lineWidth    = 20;
-    ctx.lineJoin     = "round";
-    ctx.strokeText(text, 0, 0);
+    // Measure text so we can keep it fully inside the canvas at any rotation.
+    const tw = ctx.measureText(text).width;
+    const th = fontSize; // conservative cap height
 
-    // Hot-pink fill, semi-transparent.
-    ctx.globalAlpha = 0.82;
-    ctx.fillStyle   = "#FF5C8A";
+    // Random rotation between -40° and +40°.
+    const angle = (Math.random() * 80 - 40) * (Math.PI / 180);
+    const cosA = Math.abs(Math.cos(angle));
+    const sinA = Math.abs(Math.sin(angle));
+
+    // Half-extents of the rotated bounding box.
+    const padX = cosA * tw / 2 + sinA * th / 2;
+    const padY = sinA * tw / 2 + cosA * th / 2;
+
+    const margin = 16;
+    const minX = padX + margin;
+    const maxX = CANVAS_W - padX - margin;
+    const minY = padY + margin;
+    const maxY = CANVAS_H - padY - margin;
+
+    const x = minX + Math.random() * Math.max(0, maxX - minX);
+    const y = minY + Math.random() * Math.max(0, maxY - minY);
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+
+    // Muted transparent fill — drawing shows through.
+    ctx.globalAlpha = 0.22;
+    ctx.fillStyle   = "#3A3A3A";
     ctx.fillText(text, 0, 0);
 
-    // Crisp hot-pink outline on top.
-    ctx.globalAlpha = 1;
-    ctx.strokeStyle = "#FF5C8A";
-    ctx.lineWidth   = 4;
-    ctx.strokeText(text, 0, 0);
 
     ctx.restore();
   }, []);

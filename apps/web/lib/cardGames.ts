@@ -1209,7 +1209,7 @@ export const CARD_GAME_CATEGORIES: ReadonlyArray<CardGameCategory> = [
     name: "High Energy / Party Favorites",
     emoji: "🥳",
     tagline: "Loud, fast, and no one's sitting still!",
-    games: ["SPOONS", "NN9GRM", "KINGSG", "KEMPSG"].map(getGame)
+    games: ["SPOONS", "NN9GRM", "KINGSG", "KEMPSG", "ERATSC", "SNAPGM"].map(getGame)
   },
   {
     id: "bluffing",
@@ -1231,13 +1231,6 @@ export const CARD_GAME_CATEGORIES: ReadonlyArray<CardGameCategory> = [
     emoji: "💨",
     tagline: "First one out wins, last one standing loses!",
     games: ["PRESNT", "KARMAG", "SPITGM", "SPEEDG"].map(getGame)
-  },
-  {
-    id: "slapping",
-    name: "Slapping / Reflex",
-    emoji: "✋",
-    tagline: "Blink and you'll lose!",
-    games: ["ERATSC", "SNAPGM", "SLAPJK"].map(getGame)
   },
   {
     id: "trump",

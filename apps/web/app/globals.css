@@ -59,6 +59,16 @@
   100% { opacity: 1; }
 }
 
+@keyframes dice-roll {
+  0%   { transform: rotate(0deg)   scale(1);    }
+  10%  { transform: rotate(-40deg) scale(1.28); }
+  28%  { transform: rotate(230deg) scale(1.24); }
+  48%  { transform: rotate(185deg) scale(1.16); }
+  65%  { transform: rotate(370deg) scale(1.08); }
+  82%  { transform: rotate(348deg) scale(1.03); }
+  100% { transform: rotate(360deg) scale(1);    }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
