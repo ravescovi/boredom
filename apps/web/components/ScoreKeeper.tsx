@@ -89,7 +89,9 @@ export function ScoreKeeper() {
         const parsed = JSON.parse(saved) as Session;
         setSession({ ...parsed, roundInput: Array(parsed.players.length).fill("") });
       }
-    } catch {}
+    } catch {
+      /* ignore corrupted persisted session */
+    }
     setSavedGames(loadSavedGames());
     setLoaded(true);
   }, []);
