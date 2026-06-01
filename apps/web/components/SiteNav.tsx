@@ -35,6 +35,12 @@ export function SiteNav() {
           🎯 Board
         </Link>
         <Link
+          href="/score"
+          className="rounded-full border-2 border-ink bg-paper px-4 py-2.5 text-[13px] font-bold text-ink shadow-brut-sm"
+        >
+          🏅 Score
+        </Link>
+        <Link
           href="/scoreboard"
           className="rounded-full border-2 border-ink bg-paper px-4 py-2.5 text-[13px] font-bold text-ink shadow-brut-sm"
         >

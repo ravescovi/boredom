@@ -34,7 +34,7 @@ export async function POST(req: Request): Promise<Response> {
       existing?: string[];
     };
 
-    const { themeId, themeName, count = 10, existing = [] } = body;
+    const { themeId, themeName, count = 10, existing = [], topRated = [] } = body as typeof body & { topRated?: string[] };
 
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
@@ -47,6 +47,10 @@ export async function POST(req: Request): Promise<Response> {
       ? `\n\nDo NOT repeat or closely paraphrase any of these existing cards:\n${existing.slice(0, 30).map((t, i) => `${i + 1}. ${t}`).join("\n")}`
       : "";
 
+    const topRatedList = topRated.length > 0
+      ? `\n\nPlayers have rated these cards 4–5 stars — generate cards with a similar tone, depth, and style:\n${topRated.map((t, i) => `${i + 1}. ${t}`).join("\n")}`
+      : "";
+
     const prompt = `Generate exactly ${count} fresh conversation starter cards for the "${themeName}" theme.
 
 Audience: ${TYPE_LABELS[themeId] ?? "anyone"}
@@ -56,7 +60,7 @@ Requirements:
 - Each card should feel personal, specific, and interesting — not generic
 - Vary the depth and energy: some light, some thoughtful
 - Safe and appropriate for all ages (no alcohol, no physical risk, no inappropriate content)
-- Short enough to fit on a card — ideally 1–2 sentences max${existingList}
+- Short enough to fit on a card — ideally 1–2 sentences max${topRatedList}${existingList}
 
 Return ONLY a valid JSON array, no markdown, no explanation:
 [

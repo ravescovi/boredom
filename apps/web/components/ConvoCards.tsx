@@ -9,6 +9,62 @@ import {
   type Theme,
 } from "../lib/convoCards";
 
+// ── Star ratings (localStorage) ────────────────────────────────────────────
+
+const RATINGS_KEY = "bordom-card-ratings";
+
+type RatingStore = Record<string, { rating: number; text: string; themeId: string; ratedAt: string }>;
+
+function loadRatings(): RatingStore {
+  try { return JSON.parse(localStorage.getItem(RATINGS_KEY) ?? "{}"); } catch { return {}; }
+}
+
+function saveRating(card: ConvoCard, themeId: string, rating: number) {
+  const store = loadRatings();
+  if (rating === 0) {
+    delete store[card.id];
+  } else {
+    store[card.id] = { rating, text: card.text, themeId, ratedAt: new Date().toISOString() };
+  }
+  localStorage.setItem(RATINGS_KEY, JSON.stringify(store));
+}
+
+function StarRating({
+  cardId,
+  rating,
+  onRate,
+  textColor,
+}: {
+  cardId: string;
+  rating: number;
+  onRate: (r: number) => void;
+  textColor: string;
+}) {
+  const [hover, setHover] = useState(0);
+  const active = hover || rating;
+  return (
+    <div className="flex items-center justify-center gap-1" aria-label="Rate this card">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <button
+          key={s}
+          onClick={(e) => { e.stopPropagation(); onRate(rating === s ? 0 : s); }}
+          onMouseEnter={() => setHover(s)}
+          onMouseLeave={() => setHover(0)}
+          aria-label={`${s} star`}
+          className="text-[26px] leading-none transition-transform hover:scale-125 active:scale-110"
+          style={{
+            opacity:  s <= active ? 1 : 0.25,
+            filter:   s <= active ? "none" : "grayscale(1)",
+            color:    textColor,
+          }}
+        >
+          ★
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // ── Type badge metadata ─────────────────────────────────────────────────────
 
 const TYPE_META: Record<ConvoCard["type"], { label: string; icon: string }> = {
@@ -81,12 +137,16 @@ function ConvoCardDisplay({
   index,
   total,
   visible,
+  rating,
+  onRate,
 }: {
   card: ConvoCard;
   theme: Theme;
   index: number;
   total: number;
   visible: boolean;
+  rating: number;
+  onRate: (r: number) => void;
 }) {
   const meta  = TYPE_META[card.type];
   const decos = THEME_DECO[theme.id] ?? ["✨", "⭐", "💫", "🎊"];
@@ -171,6 +231,19 @@ function ConvoCardDisplay({
         </p>
       </div>
 
+      {/* ── Star rating ── */}
+      <div className="px-5 pb-3">
+        <div className="flex flex-col items-center gap-1">
+          <StarRating cardId={card.id} rating={rating} onRate={onRate} textColor={theme.textColor} />
+          <span className="text-[10px] font-bold uppercase tracking-[.08em]" style={{ color: theme.textColor, opacity: 0.4 }}>
+            {rating > 0 ? ["","★ Meh","★★ OK","★★★ Good","★★★★ Great","★★★★★ Love it"][rating] : "Rate this card"}
+          </span>
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div className="mx-6 mb-1" style={{ height: 1, backgroundColor: dividerColor }} />
+
       {/* ── Footer — prominent type badge + progress ── */}
       <div className="px-5 pb-5 flex flex-col gap-3">
         <div className="flex items-center justify-between">
@@ -240,6 +313,15 @@ export function ConvoCards() {
   const [visible, setVisible]         = useState(true);
   const [generating, setGenerating]   = useState(false);
   const [genError, setGenError]       = useState<string | null>(null);
+  const [ratings, setRatings]         = useState<RatingStore>({});
+
+  // Load ratings from localStorage once on mount
+  useEffect(() => { setRatings(loadRatings()); }, []);
+
+  const handleRate = useCallback((card: ConvoCard, themeId: string, rating: number) => {
+    saveRating(card, themeId, rating);
+    setRatings(loadRatings());
+  }, []);
 
   // Touch / pointer swipe state
   const pointerStartX = useRef<number | null>(null);
@@ -300,6 +382,12 @@ export function ConvoCards() {
     setGenError(null);
     try {
       const existing = cards.map((c) => c.text);
+      const store    = loadRatings();
+      const topRated = Object.values(store)
+        .filter((r) => r.themeId === activeTheme.id && r.rating >= 4)
+        .sort((a, b) => b.rating - a.rating)
+        .slice(0, 5)
+        .map((r) => r.text);
       const res = await fetch("/api/cards", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -308,6 +396,7 @@ export function ConvoCards() {
           themeName: activeTheme.label,
           count: 10,
           existing,
+          topRated,
         }),
       });
       if (!res.ok) throw new Error("Generation failed");
@@ -417,6 +506,8 @@ export function ConvoCards() {
               index={index}
               total={cards.length}
               visible={visible}
+              rating={ratings[currentCard.id]?.rating ?? 0}
+              onRate={(r) => handleRate(currentCard, activeTheme.id, r)}
             />
           </div>
         )}
