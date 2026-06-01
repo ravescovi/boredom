@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
@@ -20,10 +20,128 @@ const PLAYER_COLORS = [
   { name: "Paper",  fill: "#FFFCF0", text: "#1A1A1A" },
 ];
 
-// Fun piece silhouettes — each returns an SVG path/shape in a 24×24 viewBox
-const PIECE_ICONS = ["🚀", "👑", "⭐", "💎", "🌙", "🔥"];
+// ── SVG piece shape renderers ──────────────────────────────────────────────
+// Each function renders a piece with "feet" at (cx, cy), ~18-22 px tall.
+// fill = player color, stroke is always #1A1A1A.
 
-// Suggested space labels (AI-style fill-ins)
+const PIECE_RENDERERS = [
+  // 0 — Chess pawn
+  (cx: number, cy: number, fill: string) => (
+    <g>
+      {/* Ball */}
+      <circle cx={cx} cy={cy - 17} r={5.5} fill={fill} stroke="#1A1A1A" strokeWidth="2" />
+      {/* Neck */}
+      <rect x={cx - 2.5} y={cy - 12} width={5} height={4.5} fill={fill} stroke="#1A1A1A" strokeWidth="1.5" />
+      {/* Base trapezoid */}
+      <polygon
+        points={`${cx - 7},${cy} ${cx + 7},${cy} ${cx + 4.5},${cy - 8} ${cx - 4.5},${cy - 8}`}
+        fill={fill} stroke="#1A1A1A" strokeWidth="2"
+      />
+    </g>
+  ),
+
+  // 1 — Car (side view)
+  (cx: number, cy: number, fill: string) => (
+    <g>
+      {/* Cabin */}
+      <polygon
+        points={`${cx - 6},${cy - 9} ${cx + 6},${cy - 9} ${cx + 4.5},${cy - 15} ${cx - 4.5},${cy - 15}`}
+        fill={fill} stroke="#1A1A1A" strokeWidth="1.5"
+      />
+      {/* Body */}
+      <rect x={cx - 10} y={cy - 9} width={20} height={7} rx={2} fill={fill} stroke="#1A1A1A" strokeWidth="2" />
+      {/* Wheels outer */}
+      <circle cx={cx - 5} cy={cy} r={3.5} fill="#1A1A1A" />
+      <circle cx={cx + 5} cy={cy} r={3.5} fill="#1A1A1A" />
+      {/* Wheels inner hubcap */}
+      <circle cx={cx - 5} cy={cy} r={1.8} fill={fill} />
+      <circle cx={cx + 5} cy={cy} r={1.8} fill={fill} />
+    </g>
+  ),
+
+  // 2 — Top hat
+  (cx: number, cy: number, fill: string) => (
+    <g>
+      {/* Crown */}
+      <rect x={cx - 5} y={cy - 18} width={10} height={14} rx={1} fill={fill} stroke="#1A1A1A" strokeWidth="2" />
+      {/* Hat band (decorative stripe) */}
+      <rect x={cx - 5} y={cy - 9} width={10} height={2.5} fill="#1A1A1A" opacity={0.4} rx={0.5} />
+      {/* Brim */}
+      <rect x={cx - 9} y={cy - 4} width={18} height={4} rx={2} fill={fill} stroke="#1A1A1A" strokeWidth="2" />
+    </g>
+  ),
+
+  // 3 — Boot
+  (cx: number, cy: number, fill: string) => (
+    <g>
+      {/* Leg shaft */}
+      <rect x={cx - 3.5} y={cy - 19} width={7} height={13} rx={2} fill={fill} stroke="#1A1A1A" strokeWidth="2" />
+      {/* Foot / toe box */}
+      <rect x={cx - 3.5} y={cy - 8} width={12} height={7} rx={3.5} fill={fill} stroke="#1A1A1A" strokeWidth="2" />
+    </g>
+  ),
+
+  // 4 — Sailboat
+  (cx: number, cy: number, fill: string) => (
+    <g>
+      {/* Hull */}
+      <path
+        d={`M ${cx - 11} ${cy - 4} L ${cx + 11} ${cy - 4} Q ${cx + 9} ${cy + 1} ${cx} ${cy + 1} Q ${cx - 9} ${cy + 1} ${cx - 11} ${cy - 4} Z`}
+        fill={fill} stroke="#1A1A1A" strokeWidth="2"
+      />
+      {/* Mast */}
+      <line x1={cx} y1={cy - 4} x2={cx} y2={cy - 19} stroke="#1A1A1A" strokeWidth="1.5" />
+      {/* Sail */}
+      <polygon
+        points={`${cx + 1},${cy - 18} ${cx + 1},${cy - 5} ${cx + 11},${cy - 8}`}
+        fill={fill} stroke="#1A1A1A" strokeWidth="1.5" opacity={0.9}
+      />
+    </g>
+  ),
+
+  // 5 — Rocket
+  (cx: number, cy: number, fill: string) => (
+    <g>
+      {/* Nose cone */}
+      <polygon
+        points={`${cx - 4},${cy - 14} ${cx + 4},${cy - 14} ${cx},${cy - 21}`}
+        fill={fill} stroke="#1A1A1A" strokeWidth="1.5" strokeLinejoin="round"
+      />
+      {/* Body */}
+      <rect x={cx - 4} y={cy - 14} width={8} height={12} rx={1.5} fill={fill} stroke="#1A1A1A" strokeWidth="2" />
+      {/* Left fin */}
+      <polygon
+        points={`${cx - 4},${cy - 6} ${cx - 4},${cy - 2} ${cx - 8},${cy - 1}`}
+        fill={fill} stroke="#1A1A1A" strokeWidth="1.5"
+      />
+      {/* Right fin */}
+      <polygon
+        points={`${cx + 4},${cy - 6} ${cx + 4},${cy - 2} ${cx + 8},${cy - 1}`}
+        fill={fill} stroke="#1A1A1A" strokeWidth="1.5"
+      />
+      {/* Flame */}
+      <polygon
+        points={`${cx - 2.5},${cy - 2} ${cx + 2.5},${cy - 2} ${cx},${cy + 4}`}
+        fill="#FFE45C" stroke="#FF5C8A" strokeWidth="1" opacity={0.9}
+      />
+    </g>
+  ),
+];
+
+// Render a player's assigned piece at (cx, cy)
+function renderPiece(
+  pieceShapes: number[],
+  playerId: number,
+  cx: number,
+  cy: number,
+  fill: string,
+) {
+  const shapeIdx = pieceShapes[(playerId - 1) % pieceShapes.length];
+  return PIECE_RENDERERS[shapeIdx](cx, cy, fill);
+}
+
+// ── Space label suggestions ────────────────────────────────────────────────
+
 const SPACE_SUGGESTIONS = [
   "Move forward 2",
   "Tell a joke — everyone rates it",
@@ -74,13 +192,11 @@ function generateCurvyPath(count: number): { x: number; y: number }[] {
 
 function generateAngularPath(count: number): { x: number; y: number }[] {
   // Monopoly-style border track
-  // Bottom row L→R, right col bottom→top, top row R→L, left col top→bottom
   const W = 900, H = 580;
   const marginX = 60, marginY = 65;
   const innerW = W - marginX * 2;
   const innerH = H - marginY * 2;
 
-  // Distribute count around the perimeter: 4 sides
   const sideCount = Math.floor(count / 4);
   const rem = count % 4;
   const sides = [
@@ -172,7 +288,7 @@ function AvatarUpload({
     <div className="flex flex-col items-center gap-1.5">
       <button
         onClick={() => inputRef.current?.click()}
-        className="relative h-14 w-14 rounded-full border-[3px] border-ink shadow-brut-sm transition-transform hover:-translate-y-0.5"
+        className="relative h-20 w-20 rounded-full border-[3px] border-ink shadow-brut-sm transition-transform hover:-translate-y-0.5"
         style={{ backgroundColor: color.fill }}
         title="Upload avatar or take photo"
       >
@@ -181,13 +297,16 @@ function AvatarUpload({
           {player.avatar ? (
             <img src={player.avatar} alt={player.name} className="h-full w-full object-cover" />
           ) : (
-            <span className="flex h-full w-full items-center justify-center text-[24px]">
-              {PIECE_ICONS[(player.id - 1) % PIECE_ICONS.length]}
+            <span
+              className="flex h-full w-full items-center justify-center font-display text-[28px] font-extrabold select-none"
+              style={{ color: color.text }}
+            >
+              {player.id}
             </span>
           )}
         </span>
         {/* Camera badge sits outside the clip, fully visible */}
-        <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-ink bg-paper text-[9px]">
+        <span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-ink bg-paper text-[13px]">
           📷
         </span>
       </button>
@@ -209,18 +328,20 @@ function SpecialZone({
   x,
   y,
   players,
+  pieceShapes,
 }: {
   space: Space;
   x: number;
   y: number;
   players: Player[];
+  pieceShapes: number[];
 }) {
-  const isStart  = space.type === "start";
-  const fill     = isStart ? "#5BE0B0" : "#FF5C8A";
-  const rimColor = isStart ? "#3ABEA0" : "#E0306A";
+  const isStart   = space.type === "start";
+  const fill      = isStart ? "#5BE0B0" : "#FF5C8A";
+  const rimColor  = isStart ? "#3ABEA0" : "#E0306A";
   const textColor = isStart ? "#1A1A1A" : "#FFFCF0";
-  const emoji    = isStart ? "🏁" : "🏆";
-  const label    = isStart ? "START" : "FINISH";
+  const emoji     = isStart ? "🏁" : "🏆";
+  const label     = isStart ? "START" : "FINISH";
 
   // Pill dimensions
   const pw = 82, ph = 48, rx = 24;
@@ -231,34 +352,35 @@ function SpecialZone({
     <g>
       {/* Drop shadow */}
       <rect x={x - pw / 2 + 4} y={y - ph / 2 + 4} width={pw} height={ph} rx={rx} fill="#1A1A1A" opacity="0.85" />
-      {/* Outer accent ring */}
-      <rect x={x - pw / 2 - 4} y={y - ph / 2 - 4} width={pw + 8} height={ph + 8} rx={rx + 4}
-        fill="none" stroke={rimColor} strokeWidth="3" opacity="0.5" strokeDasharray="4 3" />
+      {/* Outer accent ring — solid, no dashes */}
+      <rect
+        x={x - pw / 2 - 4} y={y - ph / 2 - 4} width={pw + 8} height={ph + 8} rx={rx + 4}
+        fill="none" stroke={rimColor} strokeWidth="3" opacity="0.5"
+      />
       {/* Main pill */}
       <rect x={x - pw / 2} y={y - ph / 2} width={pw} height={ph} rx={rx}
         fill={fill} stroke="#1A1A1A" strokeWidth="3" />
       {/* Emoji */}
       <text x={x} y={y - 7} textAnchor="middle" dominantBaseline="middle" fontSize="16">{emoji}</text>
       {/* Label */}
-      <text x={x} y={y + 11} textAnchor="middle" dominantBaseline="middle"
+      <text
+        x={x} y={y + 11} textAnchor="middle" dominantBaseline="middle"
         fontSize="11" fontWeight="800"
         fontFamily='"Bricolage Grotesque","Arial Black",sans-serif'
-        fill={textColor} letterSpacing="1">
+        fill={textColor} letterSpacing="1"
+      >
         {label}
       </text>
 
       {/* Player pieces — fanned above the pill */}
       {here.map((p, pi) => {
-        const color = PLAYER_COLORS[(p.id - 1) % PLAYER_COLORS.length];
-        const spread = (here.length - 1) * 11;
-        const px = x - spread / 2 + pi * 22;
-        const py = y - ph / 2 - 18;
+        const color  = PLAYER_COLORS[(p.id - 1) % PLAYER_COLORS.length];
+        const spread = (here.length - 1) * 13;
+        const px = x - spread / 2 + pi * 26;
+        const pieceCy = y - ph / 2 - 18;
         return (
           <g key={p.id}>
-            <circle cx={px} cy={py} r={10} fill={color.fill} stroke="#1A1A1A" strokeWidth="2" />
-            <text x={px} y={py} textAnchor="middle" dominantBaseline="middle" fontSize="11">
-              {PIECE_ICONS[(p.id - 1) % PIECE_ICONS.length]}
-            </text>
+            {renderPiece(pieceShapes, p.id, px, pieceCy, color.fill)}
           </g>
         );
       })}
@@ -271,6 +393,7 @@ function SpaceCircle({
   x,
   y,
   players,
+  pieceShapes,
   onClick,
   style,
 }: {
@@ -278,15 +401,16 @@ function SpaceCircle({
   x: number;
   y: number;
   players: Player[];
+  pieceShapes: number[];
   onClick: () => void;
   style: LayoutStyle;
 }) {
   // Delegate START/FINISH to the special zone renderer
   if (space.type === "start" || space.type === "finish") {
-    return <SpecialZone space={space} x={x} y={y} players={players} />;
+    return <SpecialZone space={space} x={x} y={y} players={players} pieceShapes={pieceShapes} />;
   }
 
-  const r = style === "angular" ? 22 : 20;
+  const r  = style === "angular" ? 22 : 20;
   const bg = space.type === "star" ? "#FFE45C" : "#FFFCF0";
 
   // Pieces on this space
@@ -303,24 +427,23 @@ function SpaceCircle({
         <text x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize="13">⭐</text>
       )}
       {space.type === "normal" && (
-        <text x={x} y={y} textAnchor="middle" dominantBaseline="middle"
+        <text
+          x={x} y={y} textAnchor="middle" dominantBaseline="middle"
           fontSize="9" fontWeight="700" fontFamily="ui-monospace,monospace"
-          fill="#1A1A1A" opacity="0.45">{space.index}</text>
+          fill="#1A1A1A" opacity="0.45"
+        >{space.index}</text>
       )}
 
       {/* Player pieces */}
       {here.map((p, pi) => {
         const color = PLAYER_COLORS[(p.id - 1) % PLAYER_COLORS.length];
         const angle = (pi / Math.max(here.length, 1)) * Math.PI * 2;
-        const pr = here.length > 1 ? 11 : 0;
-        const px = x + Math.cos(angle) * pr;
-        const py = y + Math.sin(angle) * pr;
+        const pr    = here.length > 1 ? 11 : 0;
+        const px    = x + Math.cos(angle) * pr;
+        const py    = y + Math.sin(angle) * pr;
         return (
           <g key={p.id}>
-            <circle cx={px} cy={py - 18} r={9} fill={color.fill} stroke="#1A1A1A" strokeWidth="2" />
-            <text x={px} y={py - 18} textAnchor="middle" dominantBaseline="middle" fontSize="10">
-              {PIECE_ICONS[(p.id - 1) % PIECE_ICONS.length]}
-            </text>
+            {renderPiece(pieceShapes, p.id, px, py - 18, color.fill)}
           </g>
         );
       })}
@@ -341,6 +464,18 @@ export function BoardGame() {
       position: 0,
     }))
   );
+
+  // Randomise which SVG piece shape each player gets.
+  // Start with identity order (SSR-safe), then shuffle on the client after hydration.
+  const [pieceShapes, setPieceShapes] = useState<number[]>([0, 1, 2, 3, 4, 5]);
+  useEffect(() => {
+    const arr = [0, 1, 2, 3, 4, 5];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    setPieceShapes(arr);
+  }, []);
 
   // Spaces
   const [spaces, setSpaces] = useState<Space[]>(() => buildSpaces(SPACE_COUNT));
@@ -469,8 +604,8 @@ export function BoardGame() {
       : buildAngularConnector(pts);
 
   const currentPlayer = players[activePlayer];
-  const currentColor = PLAYER_COLORS[(currentPlayer?.id - 1) % PLAYER_COLORS.length];
-  const winner = players.find((p) => p.position === SPACE_COUNT - 1);
+  const currentColor  = PLAYER_COLORS[(currentPlayer?.id - 1) % PLAYER_COLORS.length];
+  const winner        = players.find((p) => p.position === SPACE_COUNT - 1);
 
   return (
     <div className="flex flex-col gap-6">
@@ -529,7 +664,7 @@ export function BoardGame() {
       {/* ── Player cards ── */}
       <div className="flex flex-wrap gap-3">
         {players.map((p) => {
-          const color = PLAYER_COLORS[(p.id - 1) % PLAYER_COLORS.length];
+          const color    = PLAYER_COLORS[(p.id - 1) % PLAYER_COLORS.length];
           const isActive = players[activePlayer]?.id === p.id;
           return (
             <div
@@ -597,6 +732,7 @@ export function BoardGame() {
               x={pts[i]?.x ?? 0}
               y={pts[i]?.y ?? 0}
               players={players}
+              pieceShapes={pieceShapes}
               onClick={() => openEdit(i)}
               style={layoutStyle}
             />
@@ -607,7 +743,6 @@ export function BoardGame() {
             if (!space.label || space.type === "start" || space.type === "finish") return null;
             const x = pts[i]?.x ?? 0;
             const y = pts[i]?.y ?? 0;
-            // Determine label offset direction based on position in viewbox
             const labelY = y < 280 ? y - 32 : y + 32;
             return (
               <text
@@ -679,8 +814,10 @@ export function BoardGame() {
 
       {/* ── Space editor modal ── */}
       {editingSpace !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 backdrop-blur-sm"
-          onClick={(e) => { if (e.target === e.currentTarget) setEditingSpace(null); }}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 backdrop-blur-sm"
+          onClick={(e) => { if (e.target === e.currentTarget) setEditingSpace(null); }}
+        >
           <div
             className="w-full max-w-sm rounded-[18px] border-[3px] border-ink bg-paper p-6 shadow-brut-xl"
             style={{ animation: "brut-modal-in 0.22s cubic-bezier(.22,1,.36,1) forwards" }}

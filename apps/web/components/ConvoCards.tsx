@@ -9,13 +9,27 @@ import {
   type Theme,
 } from "../lib/convoCards";
 
-// ── Type badge ─────────────────────────────────────────────────────────────
+// ── Type badge metadata ─────────────────────────────────────────────────────
 
 const TYPE_META: Record<ConvoCard["type"], { label: string; icon: string }> = {
   "question":         { label: "Question",         icon: "💬" },
   "task":             { label: "Challenge",         icon: "🎯" },
   "would-you-rather": { label: "Would You Rather",  icon: "🤔" },
   "scenario":         { label: "Scenario",          icon: "💭" },
+};
+
+// ── Theme decoration icons ──────────────────────────────────────────────────
+// Four emoji ornaments scattered in the header band, keyed by theme id.
+
+const THEME_DECO: Record<string, readonly string[]> = {
+  couples:    ["💕", "💍", "🌹", "✨"],
+  friends:    ["⭐", "🤝", "🎉", "💫"],
+  deep:       ["🌊", "💫", "🔮", "🌀"],
+  laughs:     ["😂", "🎉", "😜", "🤣"],
+  dreams:     ["🌙", "⭐", "🌟", "🚀"],
+  nostalgia:  ["📼", "🎵", "📷", "⏰"],
+  wyr:        ["🎲", "⚡", "🤔", "🎯"],
+  challenges: ["🏆", "🔥", "💪", "⚡"],
 };
 
 // ── Theme selector ─────────────────────────────────────────────────────────
@@ -74,7 +88,16 @@ function ConvoCardDisplay({
   total: number;
   visible: boolean;
 }) {
-  const meta = TYPE_META[card.type];
+  const meta  = TYPE_META[card.type];
+  const decos = THEME_DECO[theme.id] ?? ["✨", "⭐", "💫", "🎊"];
+
+  // Derive contrast helpers based on whether the theme uses a dark background
+  const isDark       = theme.textColor === "#FFFCF0";
+  const headerBg     = isDark ? "rgba(255,255,255,0.11)" : "rgba(26,26,26,0.09)";
+  const dividerColor = isDark ? "rgba(255,255,255,0.14)" : "rgba(26,26,26,0.10)";
+  const badgeBorder  = isDark ? "rgba(255,255,255,0.28)" : "rgba(26,26,26,0.22)";
+  const badgeBg      = isDark ? "rgba(255,255,255,0.10)" : "rgba(26,26,26,0.07)";
+  const barTrack     = isDark ? "rgba(255,255,255,0.14)" : "rgba(26,26,26,0.10)";
 
   return (
     <div
@@ -87,57 +110,103 @@ function ConvoCardDisplay({
         maxWidth: 540,
       }}
     >
-      {/* Card header */}
-      <div
-        className="flex items-center justify-between px-6 pt-6 pb-0"
-      >
-        {/* Type badge */}
-        <div
-          className="flex items-center gap-1.5 rounded-full border-[2px] border-ink px-3 py-1 text-[11px] font-bold uppercase tracking-[.06em]"
-          style={{
-            backgroundColor: theme.accentColor,
-            color: theme.textColor,
-            borderColor: theme.textColor === "#FFFCF0" ? "rgba(255,255,255,0.3)" : "rgba(26,26,26,0.2)",
-          }}
-        >
-          <span>{meta.icon}</span>
-          <span>{meta.label}</span>
-        </div>
+      {/* ── Thematic header band ── */}
+      <div className="relative overflow-hidden rounded-t-[21px] px-6 py-5">
+        {/* Subtle contrast overlay */}
+        <div className="absolute inset-0" style={{ backgroundColor: headerBg }} />
 
-        {/* Progress */}
+        {/* Scattered decorative ornaments */}
         <span
-          className="font-mono text-[12px] font-bold"
-          style={{ color: theme.textColor, opacity: 0.45 }}
-        >
-          {index + 1} / {total}
-        </span>
+          className="absolute top-2.5 left-4 text-[18px] select-none pointer-events-none"
+          style={{ opacity: 0.38 }}
+          aria-hidden="true"
+        >{decos[0]}</span>
+        <span
+          className="absolute top-2.5 right-4 text-[18px] select-none pointer-events-none"
+          style={{ opacity: 0.38 }}
+          aria-hidden="true"
+        >{decos[1]}</span>
+        <span
+          className="absolute bottom-2.5 left-12 text-[13px] select-none pointer-events-none"
+          style={{ opacity: 0.22 }}
+          aria-hidden="true"
+        >{decos[2]}</span>
+        <span
+          className="absolute bottom-2.5 right-12 text-[13px] select-none pointer-events-none"
+          style={{ opacity: 0.22 }}
+          aria-hidden="true"
+        >{decos[3]}</span>
+
+        {/* Centered theme identity */}
+        <div className="relative z-10 flex flex-col items-center gap-1 text-center">
+          <span className="text-[38px] leading-none">{theme.emoji}</span>
+          <span
+            className="font-display text-[12px] font-extrabold uppercase tracking-[.1em] mt-0.5"
+            style={{ color: theme.textColor }}
+          >
+            {theme.label}
+          </span>
+          <span
+            className="text-[11px] font-semibold leading-tight"
+            style={{ color: theme.textColor, opacity: 0.62 }}
+          >
+            {theme.tagline}
+          </span>
+        </div>
       </div>
 
-      {/* Card body — question text */}
-      <div className="flex flex-1 items-center justify-center px-8 py-10">
+      {/* Divider */}
+      <div className="mx-6" style={{ height: 2, backgroundColor: dividerColor }} />
+
+      {/* ── Card body — question text ── */}
+      <div className="flex flex-1 items-center justify-center px-8 py-8">
         <p
           className="text-center font-display font-extrabold leading-[1.2] -tracking-[.02em]"
           style={{
             color: theme.textColor,
-            fontSize: "clamp(22px, 4vw, 34px)",
+            fontSize: "clamp(20px, 3.5vw, 30px)",
           }}
         >
           {card.text}
         </p>
       </div>
 
-      {/* Progress bar */}
-      <div className="px-6 pb-6">
+      {/* ── Footer — prominent type badge + progress ── */}
+      <div className="px-5 pb-5 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          {/* Type badge */}
+          <div
+            className="flex items-center gap-2 rounded-full border-[2px] px-4 py-1.5 text-[12px] font-bold uppercase tracking-[.06em]"
+            style={{
+              borderColor: badgeBorder,
+              backgroundColor: badgeBg,
+              color: theme.textColor,
+            }}
+          >
+            <span className="text-[16px]">{meta.icon}</span>
+            <span>{meta.label}</span>
+          </div>
+
+          {/* Progress counter */}
+          <span
+            className="font-mono text-[12px] font-bold"
+            style={{ color: theme.textColor, opacity: 0.42 }}
+          >
+            {index + 1} / {total}
+          </span>
+        </div>
+
+        {/* Progress bar */}
         <div
-          className="h-[4px] w-full overflow-hidden rounded-full"
-          style={{ backgroundColor: theme.accentColor }}
+          className="h-[5px] w-full overflow-hidden rounded-full"
+          style={{ backgroundColor: barTrack }}
         >
           <div
             className="h-full rounded-full transition-all duration-300"
             style={{
               width: `${((index + 1) / total) * 100}%`,
               backgroundColor: theme.textColor,
-              opacity: 0.35,
+              opacity: 0.45,
             }}
           />
         </div>
@@ -254,7 +323,7 @@ export function ConvoCards() {
     }
   };
 
-  // Pointer/touch swipe handlers
+  // Pointer / touch swipe handlers
   const onPointerDown = (e: React.PointerEvent) => {
     pointerStartX.current = e.clientX;
   };
@@ -262,13 +331,13 @@ export function ConvoCards() {
     if (pointerStartX.current === null) return;
     const diff = e.clientX - pointerStartX.current;
     pointerStartX.current = null;
-    if (Math.abs(diff) < 40) return; // not a real swipe
+    if (Math.abs(diff) < 40) return;
     if (diff < 0) goNext();
     else goPrev();
   };
 
   const currentCard = cards[index];
-  const isLast = index === cards.length - 1;
+  const isLast  = index === cards.length - 1;
   const isFirst = index === 0;
 
   // ── Theme selector ──
