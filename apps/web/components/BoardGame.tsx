@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { HAPTIC, vibrate } from "../lib/haptics";
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
@@ -565,6 +566,7 @@ export function BoardGame() {
     setTimeout(() => {
       setDiceRoll(roll);
       setRolling(false);
+      vibrate(HAPTIC.tap);
 
       setPlayers((prev) => {
         const updated = prev.map((p, i) => {
@@ -692,7 +694,7 @@ export function BoardGame() {
       </div>
 
       {/* ── Board SVG ── */}
-      <div className="overflow-x-auto rounded-[18px] border-[3px] border-ink bg-cream shadow-brut-xl">
+      <div className="touch-pan-x overflow-x-auto rounded-[18px] border-[3px] border-ink bg-cream shadow-brut-xl">
         <svg
           viewBox="0 0 900 580"
           width="100%"

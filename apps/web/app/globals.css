@@ -91,3 +91,37 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/*
+ * Mobile app-shell lock. Touch devices only (coarse pointer); desktop keeps
+ * native document scroll, untouched. The document itself can't scroll or
+ * bounce (no pull-to-refresh, no rubber-band) — all scrolling happens inside
+ * the single #app-scroll region. See docs/decisions + lib/haptics.ts.
+ */
+@media (pointer: coarse) {
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;           /* kills pull-to-refresh on Chrome Android */
+  }
+  body {
+    position: fixed;                     /* belt-and-suspenders vs iOS rubber-band */
+    inset: 0;
+    width: 100%;
+  }
+  #app-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;                       /* fallback for iOS < 15.4 / Chrome < 108 */
+    height: 100dvh;                      /* tracks the shrinking URL bar where supported */
+    padding-top: env(safe-area-inset-top);
+  }
+  #app-scroll {
+    flex: 1 1 auto;
+    min-height: 0;                       /* CRITICAL — lets the flex child actually scroll */
+    overflow-y: auto;
+    overscroll-behavior: contain;        /* no scroll-chaining / bounce-through */
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

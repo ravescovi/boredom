@@ -1,6 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  HAPTIC,
+  motionNeedsPermission,
+  requestMotionPermission,
+  usePointerCoarse,
+  vibrate,
+} from "../lib/haptics";
 
 const DICE_TYPES = [4, 6, 8, 10, 12, 20] as const;
 type DieType = (typeof DICE_TYPES)[number];
@@ -249,6 +256,25 @@ export function DiceRoller() {
   const canRollRef = useRef(true);
   const timerRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Input model: desktop shakes the mouse, touch devices shake the phone.
+  // The two paths never run together (mouse-shake is gated off on coarse pointers).
+  const isTouch = usePointerCoarse();
+  const [motionEnabled, setMotionEnabled] = useState(false);
+  const [motionDenied,  setMotionDenied]  = useState(false);
+  // iOS gates DeviceMotion behind a one-shot permission tap; Android/desktop don't.
+  const needsMotionPermission = isTouch && !motionEnabled && !motionDenied && motionNeedsPermission();
+
+  // Auto-enable shake on touch devices that don't require a permission prompt.
+  useEffect(() => {
+    if (isTouch && !motionNeedsPermission()) setMotionEnabled(true);
+  }, [isTouch]);
+
+  const enableShake = async () => {
+    const res = await requestMotionPermission();
+    if (res === "granted") setMotionEnabled(true);
+    else setMotionDenied(true);
+  };
+
   const totalDice = dieOrder.length;
   const trayH = totalDice <= 3 ? TRAY_H_BASE : totalDice <= 6 ? 380 : 460;
 
@@ -263,6 +289,7 @@ export function DiceRoller() {
     // Set final values immediately — the animation plays out visually
     const rollTotal     = finals.reduce((s, v) => s + v, 0);
     const q             = shuffled.length >= 2 ? rollQuality(rollTotal, shuffled) : null;
+    vibrate(q?.epic ? HAPTIC.epic : HAPTIC.roll);
     const turnIdx       = currentTurnRef.current;
     const currentPlayer = playersRef.current[turnIdx] ?? playersRef.current[0];
     const currentColor  = COLORS[turnIdx % COLORS.length];
@@ -322,8 +349,10 @@ export function DiceRoller() {
   // Cleanup.
   useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
 
-  // Mouse shake.
+  // Mouse shake — desktop only. Never attached on touch devices so it can't
+  // collide with the motion sensor.
   useEffect(() => {
+    if (isTouch) return;
     type Pt = { x: number; y: number; t: number };
     const hist: Pt[] = [];
     let lastRollAt = 0;
@@ -343,10 +372,11 @@ export function DiceRoller() {
     };
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
-  }, [roll]);
+  }, [roll, isTouch]);
 
-  // Device-motion shake.
+  // Device-motion shake — only after motion access is granted/auto-enabled.
   useEffect(() => {
+    if (!motionEnabled) return;
     let lastRollAt = 0;
     const onMotion = (e: DeviceMotionEvent) => {
       const a = e.accelerationIncludingGravity;
@@ -357,7 +387,7 @@ export function DiceRoller() {
     };
     window.addEventListener("devicemotion", onMotion as EventListener);
     return () => window.removeEventListener("devicemotion", onMotion as EventListener);
-  }, [roll]);
+  }, [roll, motionEnabled]);
 
   const adjustCount = (type: DieType, delta: number) => {
     setCounts((prev) => {
@@ -585,8 +615,21 @@ export function DiceRoller() {
         )}
       </div>
 
+      {needsMotionPermission && (
+        <button
+          onClick={enableShake}
+          className="self-start rounded-xl border-[3px] border-ink bg-mint px-5 py-2.5 font-display text-[15px] font-extrabold shadow-brut transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
+        >
+          📱 Enable shake-to-roll
+        </button>
+      )}
+
       <p className="text-[13px] font-semibold text-ink/35">
-        🖱 Shake your mouse &nbsp;·&nbsp; 📱 Shake your phone
+        {isTouch
+          ? motionDenied
+            ? "📱 Shake is blocked — turn on Motion access in your browser settings"
+            : "📱 Shake your phone to roll"
+          : "🖱 Shake your mouse to roll"}
       </p>
 
       {/* ── Roll history ── */}

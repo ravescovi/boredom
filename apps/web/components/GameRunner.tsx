@@ -330,7 +330,7 @@ export function GameRunner({ game, onClose }: { game: GameSpec; onClose: () => v
       aria-label="Game runner"
     >
       <div
-        className="relative flex w-full max-w-[620px] flex-col overflow-hidden rounded-[24px] border-[3px] border-ink shadow-brut-2xl"
+        className="relative flex max-h-[92dvh] w-full max-w-[620px] flex-col overflow-hidden rounded-[24px] border-[3px] border-ink shadow-brut-2xl"
         style={{ backgroundColor: "#FFF8E1", animation: "brut-modal-in 0.25s ease" }}
       >
         {/* Header */}
@@ -364,7 +364,7 @@ export function GameRunner({ game, onClose }: { game: GameSpec; onClose: () => v
         )}
 
         {/* Content */}
-        <div className="min-h-[340px] overflow-y-auto px-8 py-8">
+        <div className="min-h-[340px] overflow-y-auto overscroll-contain px-8 py-8">
           {phase.kind === "materials" && (
             <MaterialsScreen
               materials={game.requiredMaterials}

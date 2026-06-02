@@ -8,6 +8,7 @@ import {
   type ConvoCard,
   type Theme,
 } from "../lib/convoCards";
+import { HAPTIC, vibrate } from "../lib/haptics";
 
 // ── Star ratings (localStorage) ────────────────────────────────────────────
 
@@ -336,10 +337,12 @@ export function ConvoCards() {
 
   const goNext = useCallback(() => {
     if (!cards.length) return;
+    vibrate(HAPTIC.tick);
     transition(() => setIndex((i) => Math.min(i + 1, cards.length - 1)));
   }, [cards.length, transition]);
 
   const goPrev = useCallback(() => {
+    vibrate(HAPTIC.tick);
     transition(() => setIndex((i) => Math.max(i - 1, 0)));
   }, [transition]);
 
@@ -490,7 +493,7 @@ export function ConvoCards() {
 
       {/* Card stack + nav */}
       <div
-        className="flex flex-col items-center gap-6"
+        className="flex touch-pan-y flex-col items-center gap-6"
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}
       >

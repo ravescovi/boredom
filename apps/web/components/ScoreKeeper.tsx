@@ -341,7 +341,7 @@ export function ScoreKeeper() {
       </div>
 
       {/* Score table — player cards live in the header so they align perfectly with columns */}
-      <div className="overflow-x-auto rounded-[16px] border-[3px] border-ink shadow-brut-lg">
+      <div className="touch-pan-x overflow-x-auto rounded-[16px] border-[3px] border-ink shadow-brut-lg">
         <table className="w-full min-w-[480px] border-collapse">
           <thead>
             <tr className="border-b-[3px] border-ink">

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CARD_GAME_CATEGORIES } from "../lib/cardGames";
 import type { ClassicGame } from "../lib/classics";
+import { HAPTIC, vibrate } from "../lib/haptics";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -177,7 +178,7 @@ function RulesPanel({ game, onClose }: { game: ClassicGame; onClose: () => void 
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-t-[18px] sm:rounded-[18px] border-[3px] border-ink bg-paper shadow-brut-xl"
+        className="relative w-full max-w-md max-h-[85dvh] overflow-y-auto overscroll-contain rounded-t-[18px] sm:rounded-[18px] border-[3px] border-ink bg-paper shadow-brut-xl"
         style={{ animation: "brut-modal-in 0.22s cubic-bezier(.22,1,.36,1) forwards" }}
       >
         {/* Header */}
@@ -330,6 +331,7 @@ export function CardTable() {
     const drawn = drawPile.slice(-n);
     setDrawPile((p) => p.slice(0, -n));
     setHand((h) => [...h, ...drawn]);
+    vibrate(HAPTIC.tap);
     showToast(`Dealt ${n} cards`);
   };
 
@@ -347,6 +349,7 @@ export function CardTable() {
     const [card, ...rest] = [...drawPile].reverse();
     setDrawPile(rest.reverse());
     setHand((h) => [...h, card]);
+    vibrate(HAPTIC.tick);
     showToast(`Drew ${card.rank}${card.suit}`);
   };
 
