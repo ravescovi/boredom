@@ -167,7 +167,7 @@ function ConvoCardDisplay({
         backgroundColor: theme.bg,
         opacity: visible ? 1 : 0,
         transform: visible ? "scale(1) translateY(0)" : "scale(0.97) translateY(8px)",
-        minHeight: 420,
+        minHeight: "min(420px, 60vh)",
         maxWidth: 540,
       }}
     >

@@ -247,7 +247,7 @@ export function ScoreKeeper() {
 
       {/* Game title + actions */}
       <div className="flex flex-wrap items-end gap-4">
-        <div className="flex-1 min-w-[220px]">
+        <div className="flex-1 min-w-[min(100%,220px)]">
           <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[.1em] text-ink/50">
             Game Title
           </label>
@@ -342,7 +342,7 @@ export function ScoreKeeper() {
 
       {/* Score table — player cards live in the header so they align perfectly with columns */}
       <div className="touch-pan-x overflow-x-auto rounded-[16px] border-[3px] border-ink shadow-brut-lg">
-        <table className="w-full min-w-[480px] border-collapse">
+        <table className="w-full min-w-[min(100%,480px)] border-collapse">
           <thead>
             <tr className="border-b-[3px] border-ink">
               {/* Round label cell */}

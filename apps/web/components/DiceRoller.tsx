@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   HAPTIC,
   motionNeedsPermission,
@@ -156,41 +156,89 @@ const TOTAL_DICE_CAP = 12;
 
 // ── Main component ─────────────────────────────────────────────────────────
 
-// Random position within the tray, keeping dice fully inside.
-// Returns {x, y} as percentages of the tray, and throw deltas from edge.
-const DIE_SIZE = 80; // px — must match the size used in the tray
+// Largest die we ever draw; shrinks to fit narrow trays / many dice.
+const MAX_DIE_SIZE = 80;
+const MIN_DIE_SIZE = 44;
+const DIE_GAP = 12; // px breathing room between dice and the tray edge
 
-// Place dice in a grid of cells with randomness, keeping them fully inside.
-// x/y are percentages of the tray dimensions passed in.
-function randomTrayPos(index: number, total: number, trayW: number, trayH: number) {
-  const pad  = DIE_SIZE / 2 + 8; // px from edge — die centre never closer than this
-  const safeW = trayW - pad * 2;
-  const safeH = trayH - pad * 2;
+// Pick a die size that lets the whole set sit in a grid without overlapping,
+// given the live tray dimensions. On a phone tray this comes out well below the
+// desktop 80px, which is what stops dice from piling on top of each other.
+function fitDieSize(trayW: number, trayH: number, total: number) {
+  if (total <= 0) return MAX_DIE_SIZE;
+  const cols = Math.ceil(Math.sqrt(total));
+  const rows = Math.ceil(total / cols);
+  const byW = (trayW - DIE_GAP) / cols - DIE_GAP;
+  const byH = (trayH - DIE_GAP) / rows - DIE_GAP;
+  return Math.round(Math.max(MIN_DIE_SIZE, Math.min(MAX_DIE_SIZE, byW, byH)));
+}
 
+// Grid placement: each die lives in its own cell and jitters only within the
+// slack left over after the die is centred, so dice never overlap neighbours or
+// spill past the tray edge. The throw distance scales to the tray so dice fly
+// in from just outside the visible area instead of from a fixed 260–400px that
+// overshoots a phone-sized tray (and gets clipped mid-roll).
+// Deterministic [0,1) generator seeded by an integer. Used for the very first
+// (pre-roll) layout so server and client render identical positions — calling
+// Math.random() in the initial state would mismatch on hydration. Rolls and
+// post-mount re-flows pass the default Math.random for real randomness.
+function seededRand(seed: number) {
+  let s = (seed % 2147483647) + 1;
+  return () => {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
+
+function randomTrayPos(
+  index: number,
+  total: number,
+  trayW: number,
+  trayH: number,
+  dieSize: number,
+  rand: () => number = Math.random,
+) {
   const cols  = Math.ceil(Math.sqrt(total));
   const rows  = Math.ceil(total / cols);
   const col   = index % cols;
   const row   = Math.floor(index / cols);
-  const cellW = safeW / cols;
-  const cellH = safeH / rows;
+  const cellW = trayW / cols;
+  const cellH = trayH / rows;
 
-  // Centre of cell + random jitter (up to 40% of cell)
-  const cx = pad + col * cellW + cellW / 2 + (Math.random() - 0.5) * cellW * 0.4;
-  const cy = pad + row * cellH + cellH / 2 + (Math.random() - 0.5) * cellH * 0.4;
+  // Keep the die fully inside its cell — slack is whatever the cell has beyond
+  // the die itself; jitter uses 80% of it so dice still feel scattered.
+  const jitterX = Math.max(0, (cellW - dieSize) / 2) * 0.8;
+  const jitterY = Math.max(0, (cellH - dieSize) / 2) * 0.8;
+  const cx = cellW * (col + 0.5) + (rand() * 2 - 1) * jitterX;
+  const cy = cellH * (row + 0.5) + (rand() * 2 - 1) * jitterY;
 
-  const angle = Math.random() * Math.PI * 2;
-  const dist  = 260 + Math.random() * 140;
+  const half  = dieSize / 2 + 2;
+  const x = Math.min(Math.max(cx, half), trayW - half);
+  const y = Math.min(Math.max(cy, half), trayH - half);
+
+  // The die starts the throw at (x+dx, y+dy) and tumbles to rest at (x, y).
+  // Bound the throw vector to the die's distance from each wall so the start
+  // point — and thus the whole animation — stays inside the tray. This is what
+  // keeps dice from flinging past the (clipped) tray edge on a small screen.
+  const angle = rand() * Math.PI * 2;
+  const dist  = Math.min(trayW, trayH) * 0.55 * (0.55 + rand() * 0.45);
+  const dx = Math.max(-(x - half), Math.min(trayW - half - x, Math.cos(angle) * dist));
+  const dy = Math.max(-(y - half), Math.min(trayH - half - y, Math.sin(angle) * dist));
   return {
-    x: Math.min(Math.max(cx, pad), trayW - pad),
-    y: Math.min(Math.max(cy, pad), trayH - pad),
-    dx: Math.cos(angle) * dist,
-    dy: Math.sin(angle) * dist,
-    spinStart: Math.random() * 720 - 360,
-    rotation: Math.random() * 50 - 25,
+    x,
+    y,
+    dx,
+    dy,
+    spinStart: rand() * 720 - 360,
+    rotation: rand() * 50 - 25,
   };
 }
 
-const TRAY_W = 780;
+// Upper bound for the tray width. The live width is measured from the tray
+// element so dice are always placed inside the visible area — on a phone the
+// container is far narrower than this and a fixed 780 would fling dice off the
+// (overflow-hidden) edge, making them disappear.
+const DEFAULT_TRAY_W = 780;
 const TRAY_H_BASE = 300; // grows with dice count
 
 // ── Roll quality ───────────────────────────────────────────────────────────
@@ -231,8 +279,12 @@ export function DiceRoller() {
   const [dieOrder,   setDieOrder]   = useState<DieType[]>([6, 6]);
   const [values,     setValues]     = useState<number[]>([1, 1]);
   const [positions,  setPositions]  = useState(() =>
-    [0, 1].map((i) => randomTrayPos(i, 2, TRAY_W, TRAY_H_BASE))
+    [0, 1].map((i) => randomTrayPos(i, 2, DEFAULT_TRAY_W, TRAY_H_BASE, MAX_DIE_SIZE, seededRand(i + 1)))
   );
+  // Live tray width, measured from the DOM so dice land inside the visible
+  // tray on every screen size (see DEFAULT_TRAY_W note).
+  const trayRef = useRef<HTMLDivElement>(null);
+  const [trayW, setTrayW] = useState(DEFAULT_TRAY_W);
   const [rolling,    setRolling]    = useState(false);
   const [hasRolled,  setHasRolled]  = useState(false);
   const [rollSeed,   setRollSeed]   = useState(0);
@@ -277,6 +329,9 @@ export function DiceRoller() {
 
   const totalDice = dieOrder.length;
   const trayH = totalDice <= 3 ? TRAY_H_BASE : totalDice <= 6 ? 380 : 460;
+  // Die size adapts to the measured tray + dice count so dice fit without
+  // overlapping (especially on phones, where the tray is ~312px wide).
+  const dieSize = useMemo(() => fitDieSize(trayW, trayH, totalDice), [trayW, trayH, totalDice]);
 
   const roll = useCallback(() => {
     if (!canRollRef.current || dieOrder.length === 0) return;
@@ -284,7 +339,7 @@ export function DiceRoller() {
 
     const shuffled = shuffle(flattenCounts(counts));
     const finals   = shuffled.map((t) => rollDie(t));
-    const newPos   = shuffled.map((_, i) => randomTrayPos(i, shuffled.length, TRAY_W, trayH));
+    const newPos   = shuffled.map((_, i) => randomTrayPos(i, shuffled.length, trayW, trayH, dieSize));
 
     // Set final values immediately — the animation plays out visually
     const rollTotal     = finals.reduce((s, v) => s + v, 0);
@@ -334,17 +389,46 @@ export function DiceRoller() {
       setRolling(false);
       canRollRef.current = true;
     }, 800);
-  }, [counts, dieOrder.length, trayH]);
+  }, [counts, dieOrder.length, trayH, trayW, dieSize]);
 
   // Sync die list when counts change — keep values at 1 (not yet rolled).
   useEffect(() => {
     const flat = flattenCounts(counts);
     setDieOrder(flat);
     setValues(flat.map(() => 1));
-    setPositions(flat.map((_, i) => randomTrayPos(i, flat.length, TRAY_W, trayH)));
+    setPositions(flat.map((_, i) => randomTrayPos(i, flat.length, trayW, trayH, dieSize)));
     setHasRolled(false);
     canRollRef.current = true;
-  }, [counts]); // trayH intentionally omitted — only reposition on count change
+    // trayH/trayW/dieSize intentionally omitted — count change repositions; the
+    // resize effect below handles width changes (rotation, drawer, etc.).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [counts]);
+
+  // Measure the tray and keep dice inside it. Without this the fixed 780px
+  // layout placed dice past the right edge of a phone-width tray, where the
+  // container's overflow-hidden clipped them out of view entirely.
+  useLayoutEffect(() => {
+    const el = trayRef.current;
+    if (!el) return;
+    const measure = () => {
+      const w = Math.min(DEFAULT_TRAY_W, el.clientWidth);
+      if (w > 0) setTrayW((prev) => (prev === w ? prev : w));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [totalDice]);
+
+  // Re-flow dice when the measured width or computed die size changes (first
+  // measure, rotation, drawer open/close, …).
+  useEffect(() => {
+    setPositions((prev) =>
+      prev.map((_, i) => randomTrayPos(i, prev.length, trayW, trayH, dieSize))
+    );
+    // trayH excluded — height changes already reposition via the count effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trayW, dieSize]);
 
   // Cleanup.
   useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
@@ -556,6 +640,7 @@ export function DiceRoller() {
       {/* ── Dice tray ── */}
       {totalDice > 0 && (
         <div
+          ref={trayRef}
           className="relative w-full rounded-[20px] border-[3px] border-ink bg-cream shadow-brut-xl overflow-hidden"
           style={{ height: trayH }}
         >
@@ -563,7 +648,7 @@ export function DiceRoller() {
             Roll tray
           </p>
           {dieOrder.map((type, i) => {
-            const pos = positions[i] ?? randomTrayPos(i, totalDice, TRAY_W, trayH);
+            const pos = positions[i] ?? randomTrayPos(i, totalDice, trayW, trayH, dieSize);
             return (
               <div
                 key={`${type}-${i}-${rollSeed}`}
@@ -571,8 +656,8 @@ export function DiceRoller() {
                 style={{
                   left: pos.x,
                   top:  pos.y,
-                  width: DIE_SIZE,
-                  height: DIE_SIZE,
+                  width: dieSize,
+                  height: dieSize,
                   transform: "translate(-50%, -50%)",
                 }}
               >

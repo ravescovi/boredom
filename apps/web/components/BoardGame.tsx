@@ -698,7 +698,7 @@ export function BoardGame() {
         <svg
           viewBox="0 0 900 580"
           width="100%"
-          style={{ minWidth: 560, display: "block" }}
+          style={{ minWidth: "min(100%, 560px)", display: "block" }}
           fontFamily='"Bricolage Grotesque", "Arial Black", sans-serif'
         >
           {/* Background */}
@@ -805,7 +805,7 @@ export function BoardGame() {
 
         {/* Log */}
         {log.length > 0 && (
-          <div className="flex min-w-[220px] flex-col gap-1 rounded-xl border-[3px] border-ink bg-paper px-4 py-3 shadow-brut-sm">
+          <div className="flex basis-full flex-col gap-1 rounded-xl border-[3px] border-ink bg-paper px-4 py-3 shadow-brut-sm sm:basis-auto sm:min-w-[220px]">
             <span className="text-[11px] font-bold uppercase tracking-[.08em] text-ink/50">Move log</span>
             {log.slice(0, 5).map((entry, i) => (
               <span key={i} className="font-mono text-[12px] leading-[1.4] text-ink/70">{entry}</span>

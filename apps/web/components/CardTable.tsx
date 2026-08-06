@@ -538,7 +538,7 @@ export function CardTable() {
         className="relative flex flex-col gap-6 rounded-b-[18px] border-x-[3px] border-b-[3px] border-ink p-5"
         style={{
           background: "radial-gradient(ellipse at 50% 30%, #3d6b4f 0%, #2e5240 60%, #243f33 100%)",
-          minHeight: 480,
+          minHeight: "min(480px, 70vh)",
         }}
       >
 
